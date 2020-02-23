@@ -178,7 +178,7 @@
     <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/2020/02/22/Hello-Hexo/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/qa.png">
       <meta itemprop="name" content="侠梦">
       <meta itemprop="description" content="记录开发历程，分享工具资源。长路漫漫，未来可期，愿不忘初心，砥砺前行。">
     </span>
@@ -198,10 +198,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-02-22 20:48:54 / 修改时间：23:46:31" itemprop="dateCreated datePublished" datetime="2020-02-22T20:48:54+08:00">2020-02-22</time>
+              <time title="创建时间：2020-02-22 20:48:54" itemprop="dateCreated datePublished" datetime="2020-02-22T20:48:54+08:00">2020-02-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-02-23 17:09:58" itemprop="dateModified" datetime="2020-02-23T17:09:58+08:00">2020-02-23</time>
+              </span>
 
           
             <span id="/2020/02/22/Hello-Hexo/" class="post-meta-item leancloud_visitors" data-flag-title="Hello Hexo" title="阅读次数">
@@ -251,140 +257,18 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h6 id="前言测试修改s"><a href="#前言测试修改s" class="headerlink" title="前言测试修改s"></a>前言测试修改s</h6><ul>
+          <h5 id="前言测试修改s"><a href="#前言测试修改s" class="headerlink" title="前言测试修改s"></a>前言测试修改s</h5><ul>
 <li>es在 6.8 和 7.1 版本后，核心安全功能（例如 TLS、文件和原生 Realm 身份验证，以及基于角色的访问控制）免费提供，如果使用的是高版本es则是开箱即用的，对于低版本的es安全功能是收费的，这里使用第三方的安全框架searchguard来加固低版本的es.但本次用es7.1.1来演示。<br>网上容器化安装的资料很少，这里 记录一下使用docker来安装。</li>
 <li>所有操作均在考虑无外部网情况下离线安装（除了依赖的操作系统镜像）。</li>
 </ul>
-<h5 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h5><ul>
-<li>数据卷目录映射<ul>
-<li>方便配置修改</li>
-<li>数据需要持久化到宿主机。</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li>材料清单</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">es_guard_variable</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── elasticsearch-7.1.1-linux-x86_64.tar.gz</span><br><span class="line">├── search-guard-7-7.1.1-35.0.0.zip</span><br><span class="line">└── start.sh</span><br><span class="line"></span><br><span class="line">search-guard-ssl-es-7.0.0.zip</span><br></pre></td></tr></table></figure>
-
-<h5 id="编写dockerfile和启动脚本"><a href="#编写dockerfile和启动脚本" class="headerlink" title="编写dockerfile和启动脚本"></a>编写dockerfile和启动脚本</h5><ul>
-<li>dockerfile<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">FROM nimmis&#x2F;java-centos:oracle-8-jdk</span><br><span class="line">ENV ES_VERSION&#x3D;7.1.1 \</span><br><span class="line">	SG_PREFIX&#x3D;7 \</span><br><span class="line">	SG_VERSION&#x3D;7.1.1-35.0.0 </span><br><span class="line"></span><br><span class="line">#添加es并解压到目录</span><br><span class="line">ADD .&#x2F;elasticsearch-$ES_VERSION-linux-x86_64.tar.gz &#x2F;data&#x2F;es</span><br><span class="line">#RUN mv elasticsearch-$ES_VERSION &#x2F;data&#x2F;es&#x2F;elasticsearch</span><br><span class="line"></span><br><span class="line">#使用COPY避免解压,方便后续使用isntall安装zip包</span><br><span class="line">COPY .&#x2F;search-guard-$SG_PREFIX-$SG_VERSION.zip &#x2F;data&#x2F;es</span><br><span class="line">COPY .&#x2F;start.sh  &#x2F;data&#x2F;es</span><br><span class="line"></span><br><span class="line">#由于es不能使用root启动，创建一个elasticsearch用户</span><br><span class="line">RUN chmod +x &#x2F;data&#x2F;es&#x2F;start.sh \</span><br><span class="line">  &amp;&amp; groupadd -g 1003 elasticsearch \</span><br><span class="line">  &amp;&amp; adduser -u 1003 -g 1003  -s &#x2F;sbin&#x2F;nologin elasticsearch \</span><br><span class="line">  &amp;&amp; chown -R elasticsearch:elasticsearch &#x2F;data&#x2F;es  </span><br><span class="line"></span><br><span class="line">EXPOSE 9200 9300</span><br><span class="line">ENTRYPOINT [&quot;&#x2F;data&#x2F;es&#x2F;start.sh&quot;]</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ul>
-<ul>
-<li>start.sh脚本</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;bin&#x2F;bash</span><br><span class="line">ES_HOME&#x3D;&#x2F;data&#x2F;es&#x2F;elasticsearch-$ES_VERSION</span><br><span class="line">SG_ZIP_PATH&#x3D;&#x2F;data&#x2F;es&#x2F;search-guard-$SG_PREFIX-$SG_VERSION.zip</span><br><span class="line"></span><br><span class="line">#es和searchguard插件的配置目录</span><br><span class="line">ES_CONFIG&#x3D;$ES_HOME&#x2F;config</span><br><span class="line">SG_CONFIG&#x3D;$ES_HOME&#x2F;plugins&#x2F;search-guard-$SG_PREFIX&#x2F;sgconfig</span><br><span class="line"></span><br><span class="line">#替换变量(运行时替换没有必要了，由于有数据卷，改的都在宿主机上了)</span><br><span class="line">#sed -i &quot;s&#x2F;Xms_var&#x2F;$&#123;Xms_size:-200m&#125;&#x2F;g&quot; $ES_CONFIG&#x2F;jvm.options</span><br><span class="line">#sed -i &quot;s&#x2F;Xmx_var&#x2F;$&#123;Xmx_size:-200m&#125;&#x2F;g&quot; $ES_CONFIG&#x2F;jvm.options</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#判断是否已经安装过sg</span><br><span class="line">if [ -d &quot;$ES_HOME&#x2F;plugins&#x2F;search-guard-$SG_PREFIX&quot; ]; then</span><br><span class="line"> rm -rf $ES_HOME&#x2F;plugins&#x2F;search-guard-$SG_PREFIX</span><br><span class="line">fi</span><br><span class="line">rm -rf $SG_CONFIG</span><br><span class="line"></span><br><span class="line">#使用elasticsearch用户 安装，安装时需要手动输入 y并回车，这里用脚本代替</span><br><span class="line">su elasticsearch -s &#x2F;bin&#x2F;bash -c &quot;&#x2F;bin&#x2F;echo -e &#39;y\n&#39; | $ES_HOME&#x2F;bin&#x2F;elasticsearch-plugin install file:&#x2F;&#x2F;$SG_ZIP_PATH&quot;</span><br><span class="line"></span><br><span class="line">#将客户端证书和信任证书移动到plugins&#x2F;search-guard-$SG_PREFIX&#x2F;sgconfig目录下</span><br><span class="line">#由于后续可能会修改增加权限，改为映射数据卷,数据卷也不得行，容器被删除后，宿主机文件也没了</span><br><span class="line">cp $ES_CONFIG&#x2F;searchguard&#x2F;*  $SG_CONFIG</span><br><span class="line">cp $ES_CONFIG&#x2F;truststore.jks $SG_CONFIG</span><br><span class="line"></span><br><span class="line">#如果直接映射SG_HOME，则会在创建容器时就创建目录，采用映射一个临时目录，然后在脚本中拷贝sg配置</span><br><span class="line">#cp -rf $ES_HOME&#x2F;temp_sgconfig&#x2F;* $SG_CONFIG</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#给sgadmin授权,es运行起来后需要用这个脚本来插入配置。</span><br><span class="line">chown -R elasticsearch:elasticsearch  $ES_HOME</span><br><span class="line">chmod -R 777 $ES_HOME</span><br><span class="line">echo &quot;es配置目录：&quot;</span><br><span class="line">ls $ES_CONFIG</span><br><span class="line"></span><br><span class="line">echo &quot;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&quot;</span><br><span class="line"></span><br><span class="line">echo &quot;sg插件目录：&quot;</span><br><span class="line">ls $SG_CONFIG</span><br><span class="line"></span><br><span class="line">#运行es</span><br><span class="line">su elasticsearch -s &#x2F;bin&#x2F;bash -c &quot;$ES_HOME&#x2F;bin&#x2F;elasticsearch&quot;</span><br></pre></td></tr></table></figure>
-
-
-<h5 id="配置searchguard证书"><a href="#配置searchguard证书" class="headerlink" title="配置searchguard证书"></a>配置searchguard证书</h5><ul>
-<li>解压ssl配置文件，修改脚本：search-guard-ssl-es-7.0.0/example-pki-scripts/example.sh</li>
-<li>脚本文件介绍<ul>
-<li>CA密码：根证书密码</li>
-<li>TS密码：信任证书密码</li>
-<li>Ks密码：keystore密码</li>
-</ul>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>文件名</th>
-<th>含义</th>
-<th>参数</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>gen_client_node_cert.sh</td>
-<td>客户端证书</td>
-<td>客户端节点名称，ks_pass,ca_pass</td>
-</tr>
-<tr>
-<td>gen_root_ca.sh</td>
-<td>根证书</td>
-<td>ca_pass,ts_pass</td>
-</tr>
-<tr>
-<td>gen_node_cert.sh</td>
-<td>节点证书</td>
-<td>节点编号，ks_pass,capass</td>
-</tr>
-</tbody></table>
-<ul>
-<li>如果分不清，可以全部设置成一样的，如下：</li>
-</ul>
-<p>图+++++</p>
-<ul>
-<li><p>宿主机外部配置</p>
-</li>
-<li><p>我设置了log4j2日志级别为debug，方便安装过程中排查问题。</p>
-</li>
-<li><p>ssl中执行example.sh生成的3个脚本：</p>
-<ul>
-<li>hyq_cluster2-keystore.jks</li>
-<li>node-0-keystore.jks</li>
-<li>truststore.jks</li>
-</ul>
-</li>
-<li><p>将生成文件复制到宿主机路径：/data/volumn/es/config，目录结构如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">├── config &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;》 es的配置目录</span><br><span class="line">│   ├── data</span><br><span class="line">│   ├── elasticsearch.keystore</span><br><span class="line">│   ├── elasticsearch.yml</span><br><span class="line">│   ├── jvm.options</span><br><span class="line">│   ├── log4j2.properties</span><br><span class="line">│   ├── logs</span><br><span class="line">│   ├── node-0-keystore.jks</span><br><span class="line">│   ├── scripts</span><br><span class="line">│   └── truststore.jks</span><br><span class="line">└── sgconfig &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;》searchguard的配置目录</span><br><span class="line">    ├── hyq_cluster2-keystore.jks</span><br><span class="line">    ├── sg_action_groups.yml</span><br><span class="line">    ├── sg_config.yml</span><br><span class="line">    ├── sg_internal_users.yml</span><br><span class="line">    ├── sg_roles_mapping.yml</span><br><span class="line">    ├── sg_roles.yml</span><br><span class="line">    ├── sg_tenants.yml</span><br><span class="line">    └── truststore.jks</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>elasticsearch.yml中配置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#transport层</span><br><span class="line">searchguard.ssl.transport.enabled: true</span><br><span class="line">searchguard.ssl.transport.keystore_filepath: node-0-keystore.jks</span><br><span class="line">searchguard.ssl.transport.keystore_password: 12345678</span><br><span class="line">searchguard.ssl.transport.truststore_filepath: truststore.jks</span><br><span class="line">searchguard.ssl.transport.truststore_password: 12345678</span><br><span class="line">searchguard.ssl.transport.enforce_hostname_verification: false</span><br><span class="line">searchguard.ssl.transport.resolve_hostname: false</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#http层</span><br><span class="line">searchguard.ssl.http.enabled: false</span><br><span class="line">searchguard.ssl.http.keystore_filepath: node-0-keystore.jks</span><br><span class="line">searchguard.ssl.http.keystore_password: 12345678</span><br><span class="line">searchguard.ssl.http.truststore_filepath: truststore.jks</span><br><span class="line">searchguard.ssl.http.truststore_password: 12345678</span><br><span class="line"></span><br><span class="line">searchguard.authcz.admin_dn: </span><br><span class="line">- CN&#x3D;hyq_cluster2, OU&#x3D;client, O&#x3D;client, L&#x3D;Test, C&#x3D;DE</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h5 id="构建运行"><a href="#构建运行" class="headerlink" title="构建运行"></a>构建运行</h5><ul>
-<li>构建镜像，运行容器</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">docker rm es_with_sg1</span><br><span class="line">docker rmi es_with_sg:1.0</span><br><span class="line">docker build -t es_with_sg:1.0 .</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">docker run -h es_with_sg1  -it \</span><br><span class="line"> --name es_with_sg1 \</span><br><span class="line"> --network&#x3D;host \</span><br><span class="line"> -p 9200:9200 -p 9300:9300 \</span><br><span class="line">-e client_node_cert_name&#x3D;hyq_cluster2 \</span><br><span class="line">-v &#x2F;data&#x2F;volumn&#x2F;es&#x2F;config:&#x2F;data&#x2F;es&#x2F;elasticsearch-7.1.1&#x2F;config \</span><br><span class="line">es_with_sg:1.0</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>将配置写入运行中的es</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it es_with_sg1 &#x2F;bin&#x2F;bash</span><br><span class="line"></span><br><span class="line">.&#x2F;plugins&#x2F;search-guard-7&#x2F;tools&#x2F;sgadmin.sh -cn hyq_cluster -h 0.0.0.0 -cd plugins&#x2F;search-guard-7&#x2F;sgconfig -ks  plugins&#x2F;search-guard-7&#x2F;sgconfig&#x2F;hyq_cluster2-keystore.jks -kspass 12345678  -ts plugins&#x2F;search-guard-7&#x2F;sgconfig&#x2F;truststore.jks  -tspass 12345678 -nhnv</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>修改密码</p>
-<ul>
-<li>使用plugins/search-guard-7/tools/hash.sh，生成密码。</li>
-<li>如：hbash -p huangyq@123</li>
-</ul>
-</li>
-<li><p>修改内置用户密码（search-guard-7/sgconfig/sg_internal_users.yml）</p>
-</li>
-</ul>
-<h5 id="客户端连接（不启用https）"><a href="#客户端连接（不启用https）" class="headerlink" title="客户端连接（不启用https）"></a>客户端连接（不启用https）</h5><ul>
-<li><p>The TransportClient is deprecated in favour of the Java High Level REST Client and will be removed in Elasticsearch 8.0. The migration guide describes all the steps needed to migrate</p>
-<ul>
-<li>官方文档显示将在8.0以后的版本移除transport连接方式，所以我们连接es使用Rest的方式。</li>
-</ul>
-</li>
-<li><p>elasticsearch.yml中配置searchguard.ssl.http.enabled: false</p>
-</li>
-<li><p>使用logstash的generator生成测试数据，入es</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">input &#123;</span><br><span class="line">        generator &#123;</span><br><span class="line">                count &#x3D;&gt; 100</span><br><span class="line">                message &#x3D;&gt; &#39;&#123;&quot;a&quot;:&quot;1&quot;,&quot;b&quot;:&quot;huangyunquan&quot;&#125;&#39;</span><br><span class="line">                codec &#x3D;&gt; json</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">output &#123;</span><br><span class="line">  elasticsearch &#123;</span><br><span class="line">    hosts &#x3D;&gt; [&quot;http:&#x2F;&#x2F;localhost:9200&quot;]</span><br><span class="line">    index &#x3D;&gt; &quot;hyq-%&#123;+YYYY.MM.dd&#125;&quot;</span><br><span class="line">    user &#x3D;&gt; &quot;admin&quot;</span><br><span class="line">    password &#x3D;&gt; &quot;huangyq@123&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">bin&#x2F;logstash -f config&#x2F;test_es.conf</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>java客户端</p>
-<ul>
-<li>没有开启https,只需要认证用户名密码即可。</li>
-<li>开启https，需要添加信任证书。</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">public static void init_with_https_auth() throws Exception &#123;</span><br><span class="line">    Path keyStorePath &#x3D; Paths.get(Rest.class.getClass().getResource(&quot;&#x2F;truststore.jks&quot;).toURI());</span><br><span class="line">    String keyStorePass &#x3D; &quot;12345678&quot;;</span><br><span class="line">    KeyStore truststore &#x3D; KeyStore.getInstance(&quot;jks&quot;);</span><br><span class="line">    try (InputStream is &#x3D; Files.newInputStream(keyStorePath)) &#123;</span><br><span class="line">        truststore.load(is, keyStorePass.toCharArray());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    SSLContextBuilder sslBuilder &#x3D; SSLContexts.custom()</span><br><span class="line">            .loadTrustMaterial(truststore, null);</span><br><span class="line">    final SSLContext sslContext &#x3D; sslBuilder.build();</span><br><span class="line">    HttpHost[] htps &#x3D; new HttpHost[]&#123;</span><br><span class="line">            new HttpHost(host,port,&quot;https&quot;)&#125;;</span><br><span class="line"></span><br><span class="line">    final CredentialsProvider credentialsProvider &#x3D; new BasicCredentialsProvider();</span><br><span class="line">    credentialsProvider.setCredentials(AuthScope.ANY,</span><br><span class="line">            new UsernamePasswordCredentials(username, password));</span><br><span class="line">    restClient &#x3D; RestClient.builder(htps)</span><br><span class="line">            .setHttpClientConfigCallback(httpClientBuilder -&gt;&#123;</span><br><span class="line">                httpClientBuilder.setSSLContext(sslContext);</span><br><span class="line">                httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);</span><br><span class="line">                return httpClientBuilder;</span><br><span class="line">            &#125; ).build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h5 id="疑难解答"><a href="#疑难解答" class="headerlink" title="疑难解答"></a>疑难解答</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"> Q: java.nio.file.AccessDeniedException，unable to create temporary keystore at ..elasticsearch.keystore.tmp], please check filesystem permissions?</span><br><span class="line"> A:  由于在容器中创建了一个用户，同时又映射了数据卷，所以在config目录下需要给目录授权。容器内的用户和宿主机用户，是通过uid和gid来验证</span><br><span class="line">    </span><br><span class="line">Q: Keystore was tampered with, or password was incorrect?</span><br><span class="line">A：使用example生成的密码一定要和elasticsearch.yml配置的一样，还有就是truststore_password、keystore_password配置项不能少，否则也会报这个错，笔者被这个问题坑惨了。</span><br><span class="line">   </span><br><span class="line">Q: ERR</span><br><span class="line">Seems you use a client certificate but this one is not registered as admin_dn</span><br><span class="line">Make sure elasticsearch.yml on all nodes contains:</span><br><span class="line">searchguard.authcz.admin_dn?</span><br><span class="line">A: gen_client_node_cert的第一个参数一定要和elasticsearch.yml中配置的searchguard.authcz.admin_dn配置项下的 CN相同。</span><br><span class="line"></span><br><span class="line">Q: searchguard index does not exist yet, </span><br><span class="line">so no need to load config on node startup. Use sgadmin to initialize cluster?</span><br><span class="line">A: 容器运行起来后，使用sgadmin.sh 写入配置。</span><br><span class="line">   </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Q: the default discovery settings are unsuitable for production use;</span><br><span class="line">at least one of [discovery.seed_hosts,</span><br><span class="line">discovery.seed_providers, cluster.initial_master_nodes] must be configured?</span><br><span class="line">A: 三个属性必须在elasticsearch.yml中配置一个。</span><br><span class="line">    </span><br><span class="line">Q:Host name &#39;xxx.ip&#39; does not match the certificate subject provided by the peer (CN&#x3D;node-0.example.com, OU&#x3D;SSL, O&#x3D;Test, L&#x3D;Test, C&#x3D;DE)?</span><br><span class="line">A: 本地host配置 xxx.ip node-0.example.com。</span><br><span class="line"></span><br><span class="line">Q: Search Guard not initialized (SG11). See https:&#x2F;&#x2F;docs.search-guard.com&#x2F;latest&#x2F;sgadmin?</span><br><span class="line">A: 进入容器内部es根目录下，执行sgadmin脚本写入配置。</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/02/22/Hello-Hexo/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -406,7 +290,7 @@
     <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/2020/02/22/hello-world/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/qa.png">
       <meta itemprop="name" content="侠梦">
       <meta itemprop="description" content="记录开发历程，分享工具资源。长路漫漫，未来可期，愿不忘初心，砥砺前行。">
     </span>
@@ -429,6 +313,13 @@
 
               <time title="创建时间：2020-02-22 20:35:07" itemprop="dateCreated datePublished" datetime="2020-02-22T20:35:07+08:00">2020-02-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-02-23 17:11:10" itemprop="dateModified" datetime="2020-02-23T17:11:10+08:00">2020-02-23</time>
+              </span>
 
           
             <span id="/2020/02/22/hello-world/" class="post-meta-item leancloud_visitors" data-flag-title="Hello World" title="阅读次数">
@@ -479,19 +370,14 @@
 
       
           <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/02/22/hello-world/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -565,6 +451,8 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="侠梦"
+      src="/images/qa.png">
   <p class="site-author-name" itemprop="name">侠梦</p>
   <div class="site-description" itemprop="description">记录开发历程，分享工具资源。长路漫漫，未来可期，愿不忘初心，砥砺前行。</div>
 </div>
@@ -579,6 +467,9 @@
       </div>
   </nav>
 </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
 
 
 
@@ -595,13 +486,16 @@
     <footer class="footer">
       <div class="footer-inner">
         
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">京ICP备19051662号 </a>
+      <img src="https://static.dy208.cn/o_1dfilp8ruo521thr1hvf18ji17soa.png" style="display: inline-block;">
+  </div>
 
 <div class="copyright">
   
   &copy; 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">侠梦</span>
     <span class="post-meta-divider">|</span>
@@ -617,11 +511,6 @@
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
     <span title="站点阅读时长">8 分钟</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
-  </div>
-  <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.1
-  </div>
 
         
 <div class="busuanzi-count">
