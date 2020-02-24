@@ -137,12 +137,12 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">3</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">2</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">2</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">1</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
@@ -202,18 +202,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-02-24 20:32:00 / 修改时间：20:50:13" itemprop="dateCreated datePublished" datetime="2020-02-24T20:32:00+08:00">2020-02-24</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">多线程</span>
-                  </a>
-                </span>
+              <time title="创建时间：2020-02-24 20:46:31 / 修改时间：20:54:16" itemprop="dateCreated datePublished" datetime="2020-02-24T20:46:31+08:00">2020-02-24</time>
             </span>
 
           
@@ -287,25 +276,23 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-线程3启动</span><br><span class="line">-线程2启动</span><br><span class="line">-线程1启动</span><br><span class="line">线程2完成--我休眠3秒</span><br><span class="line">线程3完成--我休眠6秒</span><br><span class="line"></span><br><span class="line">线程1完成--我休眠13秒</span><br><span class="line"></span><br><span class="line">主线程结束....</span><br><span class="line">Process finished with exit code 0</span><br></pre></td></tr></table></figure>
 
 <p>可以看出三个线程是并行执行的。启动顺序，并不和执行完毕的顺序一致，但可以明确的是，主线程为一直阻塞，直到三个线程执行完毕。</p>
-<h5 id="CountDownLatch用法"><a href="#CountDownLatch用法" class="headerlink" title="CountDownLatch用法"></a>CountDownLatch用法</h5><p>阿里巴巴的数据库连接池Druid中也用了countDownLatch来保证初始化。<br> <img src="https://graph.baidu.com/resource/222e2aa1bb140f2bedd5901580962581.png" alt="file"></p>
+<h5 id="CountDownLatch用法"><a href="#CountDownLatch用法" class="headerlink" title="CountDownLatch用法"></a>CountDownLatch用法</h5><p>阿里巴巴的数据库连接池Druid中也用了countDownLatch来保证初始化。</p>
+<p><img src="http://img.lifehelper.top/FgFpJxKnkI4Kl7HCcjuYzBBTOp8y" alt="file"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 开启创建连接的线程，如果线程池createScheduler为null，</span><br><span class="line">&#x2F;&#x2F;则开启单个创建连接的线程</span><br><span class="line">createAndStartCreatorThread();  </span><br><span class="line"></span><br><span class="line"> &#x2F;&#x2F; 开启销毁过期连接的线程</span><br><span class="line">createAndStartDestroyThread();</span><br></pre></td></tr></table></figure>
 
 
-<p>自己编写一个例子：<br>这里模拟一种情况：<br> 主线程 依赖 线程A初始化三个数据，才能继续加载后续逻辑。</p>
-<p><img src="https://graph.baidu.com/resource/2220d0927853c8066aa6b01580971014.png" alt="file"></p>
+<p>自己编写一个例子：<br>这里模拟一种情况：<br> 主线程 依赖 线程A初始化三个数据，才能继续加载后续逻辑。<br><img src="http://img.lifehelper.top/FlF6Cgs1bdbJhlurfVWUNjIb5U4B" alt="file"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">public class CountDownArticle &#123;</span><br><span class="line">    &#x2F;**</span><br><span class="line">     * 模拟 主线程 依赖 线程A初始化一个数据，才能继续加载后续逻辑</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line">        AtomicReference&lt;String&gt; key &#x3D; new AtomicReference&lt;&gt;(&quot;&quot;);</span><br><span class="line">        CountDownLatch countDownLatch &#x3D; new CountDownLatch(3);</span><br><span class="line">            Thread t &#x3D; new Thread(() -&gt; &#123;</span><br><span class="line">            try &#123;</span><br><span class="line"></span><br><span class="line">                &#x2F;&#x2F;休眠5秒，模拟数据的初始化</span><br><span class="line">                TimeUnit.SECONDS.sleep(5);</span><br><span class="line"></span><br><span class="line">                key.set(&quot;核心秘钥123456&quot;);</span><br><span class="line">                System.out.println(&quot;数据1初始化完毕&quot;);</span><br><span class="line"></span><br><span class="line">                &#x2F;&#x2F;释放---此处可以在任何位置调用，很灵活</span><br><span class="line">                countDownLatch.countDown();</span><br><span class="line"></span><br><span class="line">                System.out.println(&quot;数据2初始化完毕&quot;);</span><br><span class="line">                countDownLatch.countDown();</span><br><span class="line"></span><br><span class="line">                System.out.println(&quot;数据3初始化完毕&quot;);</span><br><span class="line">                countDownLatch.countDown();</span><br><span class="line"></span><br><span class="line">            &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;);</span><br><span class="line">        t.start();</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;等待数据初始化，阻塞</span><br><span class="line">        countDownLatch.await();</span><br><span class="line">        System.out.println(&quot;key：&quot; + key.get());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>打印内容如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">数据1初始化完毕</span><br><span class="line">数据2初始化完毕</span><br><span class="line">数据3初始化完毕</span><br><span class="line">key：核心秘钥123456</span><br></pre></td></tr></table></figure>
 
 <h4 id="CountDownLatch和Join用法的区别？"><a href="#CountDownLatch和Join用法的区别？" class="headerlink" title="CountDownLatch和Join用法的区别？"></a>CountDownLatch和Join用法的区别？</h4><p>在使用join()中，多个线程只有在执行完毕之后欧才能被解除阻塞，而在CountDownLatch中，线程可以在任何时候任何位置调用countdown方法减少计数，通过这种方式，我们可以更好地控制线程的解除阻塞，而不是仅仅依赖于连接线程的完成。</p>
-<p>join()方法的执行逻辑如下图所示：</p>
-<p><img src="https://graph.baidu.com/resource/2225567dad6c465df0e7201580956962.png" alt="file"></p>
+<p>join()方法的执行逻辑如下图所示：<br><img src="http://img.lifehelper.top/FrG2oWAMtUExDoNQHE3GAC08N2dk" alt="file"></p>
 <h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>从源码可以看出，CountDownLatch是依赖于AbstractQueuedSynchronizer来实现这一系列逻辑的。</p>
 <p>队列同步器AbstractQueuedSynchronizer<br>是一个用来构建锁和同步器的框架,它在内部定义了一个被标识为volatile的名为state的变量,用来表示同步状态。</p>
 <p>多个线程之间可以通过AQS来独占式或共享式的抢占资源。</p>
-<p>并且它通过内置的FIFO队列来完成线程的排队工作。</p>
-<p><img src="https://graph.baidu.com/resource/22207b617ac1d15f91e3e01580976585.png" alt="file"></p>
+<p>并且它通过内置的FIFO队列来完成线程的排队工作。<br><img src="http://img.lifehelper.top/FslGLnpZ4oW7D7uosq5IST82F-1w" alt="file"></p>
 <p>CountDownLatch中的Sync会优先尝试修改state的值，来获取同步状态。例如，如果某个线程成功的将state的值从0修改为1，表示成功的获取了同步状态。 这个修改的过程是通过CAS完成的，所以可以保证线程安全。</p>
 <p>反之，如果修改state失败，则会将当前线程加入到AQS的队列中，并阻塞线程。</p>
 <h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>CountDownLatch(int N) 中的计数器，可以让我们支持最多等待N个线程的操作完成，或是一个线程操作N次。</p>
@@ -766,13 +753,13 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">1</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
