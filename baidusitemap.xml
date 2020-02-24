@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://www.lifehelper.top/2020/02/22/hello-world/</loc>
+    <lastmod>2020-02-24</lastmod>
+  </url>  <url>
     <loc>https://www.lifehelper.top/2020/02/24/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8BCountDownLatch%E7%9A%84%E7%94%A8%E6%B3%95%E5%8F%8A%E5%8E%9F%E7%90%86/</loc>
     <lastmod>2020-02-24</lastmod>
   </url>  <url>
@@ -8,9 +11,6 @@
     <lastmod>2020-02-24</lastmod>
   </url>  <url>
     <loc>https://www.lifehelper.top/2020/02/22/Elasticsearch%E5%AE%89%E5%85%A8%E6%8F%92%E4%BB%B6Searchguard%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/</loc>
-    <lastmod>2020-02-23</lastmod>
-  </url>  <url>
-    <loc>https://www.lifehelper.top/2020/02/22/hello-world/</loc>
     <lastmod>2020-02-23</lastmod>
   </url>
 </urlset>
