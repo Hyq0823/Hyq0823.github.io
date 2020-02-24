@@ -1,0 +1,12 @@
+# huangyunquan robots.txt
+User-agent: * Allow: /
+Allow: /archives/
+Disallow: /vendors/
+Disallow: /js/
+Disallow: /css/
+Disallow: /fonts/
+Disallow: /vendors/
+Disallow: /fancybox/
+
+Sitemap: https://www.lifehelper.top/sitemap.xml
+Sitemap: https://www.lifehelper.top/baidusitemap.xml
