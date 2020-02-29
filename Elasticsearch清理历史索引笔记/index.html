@@ -20,26 +20,21 @@
     var CONFIG = {"hostname":"www.lifehelper.top","root":"/","scheme":"Gemini","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#468eff","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":false,"nav":null,"activeClass":"changyan"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="一句话理解Spark是什么spark是一个基于内存计算的框架，是一种通用的大数据快速处理引擎。 spark的版本支持情况本文基于Spark2.3.1做阐述说明。">
+  <meta name="description" content="前言 es用作海量数据和存储和检索，对于较大日志数据，如果全部存储在一个索引中，像数据库表一样，久而久之，检索查询会越来越慢，服务器压力也大。无论是按天分索引、还是按月份索引，一般建立索引的时候都会带上时间。 很明确的说，已经超过一定量级的索引，应该是不会再写入新数据了，可以强制进行合并压缩，设置只读等操作。 对于搜索来说，合并的分片越少，查询和排序越快（想象一下深度分页。。。） 我们的文档存储在">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spark从入门到成神之路-Spark理论开山篇（一）">
-<meta property="og:url" content="https://www.lifehelper.top/2020/02/28/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
+<meta property="og:title" content="Elasticsearch清理历史索引笔记">
+<meta property="og:url" content="https://www.lifehelper.top/Elasticsearch%E6%B8%85%E7%90%86%E5%8E%86%E5%8F%B2%E7%B4%A2%E5%BC%95%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="侠梦的开发笔记">
-<meta property="og:description" content="一句话理解Spark是什么spark是一个基于内存计算的框架，是一种通用的大数据快速处理引擎。 spark的版本支持情况本文基于Spark2.3.1做阐述说明。">
+<meta property="og:description" content="前言 es用作海量数据和存储和检索，对于较大日志数据，如果全部存储在一个索引中，像数据库表一样，久而久之，检索查询会越来越慢，服务器压力也大。无论是按天分索引、还是按月份索引，一般建立索引的时候都会带上时间。 很明确的说，已经超过一定量级的索引，应该是不会再写入新数据了，可以强制进行合并压缩，设置只读等操作。 对于搜索来说，合并的分片越少，查询和排序越快（想象一下深度分页。。。） 我们的文档存储在">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://img.lifehelper.top/FhJjKwYnJCisDAggqDj9tPfQU9ra">
-<meta property="og:image" content="http://img.lifehelper.top/Fs_B_FpaNeZYOYUPkPx9klAsFBIG">
-<meta property="og:image" content="http://img.lifehelper.top/FvdXEEiK_FZ0ePd1b5FZWcU9hBI0">
-<meta property="og:image" content="http://img.lifehelper.top/FrODUmx3lJJQtubpiHjoA_39wvXf">
-<meta property="og:image" content="http://img.lifehelper.top/FlhG1XofOcuN4MgN5Wz8vKXNHcoQ">
-<meta property="article:published_time" content="2020-02-28T14:53:54.000Z">
-<meta property="article:modified_time" content="2020-02-28T14:54:47.123Z">
+<meta property="article:published_time" content="2020-02-24T05:40:54.000Z">
+<meta property="article:modified_time" content="2020-02-24T05:41:11.660Z">
 <meta property="article:author" content="侠梦">
-<meta property="article:tag" content="Spark">
+<meta property="article:tag" content="Elasticsearch">
+<meta property="article:tag" content="运维">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://img.lifehelper.top/FhJjKwYnJCisDAggqDj9tPfQU9ra">
 
-<link rel="canonical" href="https://www.lifehelper.top/2020/02/28/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/">
+<link rel="canonical" href="https://www.lifehelper.top/Elasticsearch%E6%B8%85%E7%90%86%E5%8E%86%E5%8F%B2%E7%B4%A2%E5%BC%95%E7%AC%94%E8%AE%B0/">
 
 
 <script id="page-configurations">
@@ -51,7 +46,7 @@
   };
 </script>
 
-  <title>Spark从入门到成神之路-Spark理论开山篇（一） | 侠梦的开发笔记</title>
+  <title>Elasticsearch清理历史索引笔记 | 侠梦的开发笔记</title>
   
 
 
@@ -184,7 +179,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/2020/02/28/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/Elasticsearch%E6%B8%85%E7%90%86%E5%8E%86%E5%8F%B2%E7%B4%A2%E5%BC%95%E7%AC%94%E8%AE%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/xiameng.jpg">
@@ -197,7 +192,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          Spark从入门到成神之路-Spark理论开山篇（一）
+          Elasticsearch清理历史索引笔记
         </h2>
 
         <div class="post-meta">
@@ -208,7 +203,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-02-28 22:53:54 / 修改时间：22:54:47" itemprop="dateCreated datePublished" datetime="2020-02-28T22:53:54+08:00">2020-02-28</time>
+              <time title="创建时间：2020-02-24 13:40:54 / 修改时间：13:41:11" itemprop="dateCreated datePublished" datetime="2020-02-24T13:40:54+08:00">2020-02-24</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -216,14 +211,14 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">Spark从入门到成神之路</span>
+                  <a href="/categories/Elasticsearch%E8%BF%90%E7%BB%B4%E5%AE%9E%E6%88%98%E6%94%BB%E7%95%A5/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch运维实战攻略</span>
                   </a>
                 </span>
             </span>
 
           
-            <span id="/2020/02/28/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="Spark从入门到成神之路-Spark理论开山篇（一）" title="阅读次数">
+            <span id="/Elasticsearch%E6%B8%85%E7%90%86%E5%8E%86%E5%8F%B2%E7%B4%A2%E5%BC%95%E7%AC%94%E8%AE%B0/" class="post-meta-item leancloud_visitors" data-flag-title="Elasticsearch清理历史索引笔记" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -246,8 +241,8 @@
       <span class="post-meta-item-text">Changyan：</span>
     
     
-      <a title="changyan" href="/2020/02/28/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
-        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="2020/02/28/Spark从入门到成神之路-Spark理论开山篇（一）/" itemprop="commentCount"></span>
+      <a title="changyan" href="/Elasticsearch%E6%B8%85%E7%90%86%E5%8E%86%E5%8F%B2%E7%B4%A2%E5%BC%95%E7%AC%94%E8%AE%B0/#SOHUCS" itemprop="discussionUrl">
+        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="Elasticsearch清理历史索引笔记/" itemprop="commentCount"></span>
       </a>
     
   </span>
@@ -258,14 +253,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.7k</span>
+              <span>1.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
+              <span>1 分钟</span>
             </span>
 
         </div>
@@ -277,82 +272,35 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="一句话理解Spark是什么"><a href="#一句话理解Spark是什么" class="headerlink" title="一句话理解Spark是什么"></a>一句话理解Spark是什么</h4><p>spark是一个基于内存计算的框架，是一种通用的大数据快速处理引擎。</p>
-<h4 id="spark的版本支持情况"><a href="#spark的版本支持情况" class="headerlink" title="spark的版本支持情况"></a>spark的版本支持情况</h4><p>本文基于Spark2.3.1做阐述说明。</p>
-<p><img src="http://img.lifehelper.top/FhJjKwYnJCisDAggqDj9tPfQU9ra" alt="file"></p>
+        <h5 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h5><ul>
+<li>es用作海量数据和存储和检索，对于较大日志数据，如果全部存储在一个索引中，<br>像数据库表一样，久而久之，检索查询会越来越慢，服务器压力也大。无论是按天分索引、还是按月份索引，一般建立索引的时候都会带上时间。</li>
+<li>很明确的说，已经超过一定量级的索引，应该是不会再写入新数据了，可以强制进行合并压缩，设置只读等操作。</li>
+<li>对于搜索来说，合并的分片越少，查询和排序越快（想象一下深度分页。。。）</li>
+<li>我们的文档存储在分片中，并且在分片中被索引，但是我们的应用程序不会直接与它们通信，取而代之的是，直接与索引通信，像查询数据库表一样，我们可能只需要查询近两天的数据就能得到我们想要的结果，而不是扫描包含所有数据的大表。<ul>
+<li>将数据按时间分索引存储，将所有数据全load到内存，查询不走磁盘，直接走内存是很快的。</li>
+</ul>
+</li>
+</ul>
 <a id="more"></a> 
 
+<h5 id="过期数据清理策略"><a href="#过期数据清理策略" class="headerlink" title="过期数据清理策略"></a>过期数据清理策略</h5><ul>
+<li>es提供对外删除索引的api,我们可以通过写shell脚本的方式来删除过期的数据。</li>
+<li>新建es-index-delete.sh脚本</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;bin&#x2F;bash</span><br><span class="line">ESURL&#x3D;http:&#x2F;&#x2F;your.es.ip:9200</span><br><span class="line"></span><br><span class="line"># 传入索引名，删除索引</span><br><span class="line">function delete_es_index()&#123;</span><br><span class="line">  printf &quot;deleting index: $1 \r\n&quot;</span><br><span class="line">  curl -u elastic:tianyan -XDELETE &quot;$ESURL&#x2F;$1&quot; &gt; &#x2F;dev&#x2F;null 2&gt;&amp;1</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">#循环es查询索引api返回结果,处理每个索引</span><br><span class="line">for index in $(curl -u elastic:tianyan -XGET &quot;$ESURL&#x2F;_cat&#x2F;indices?v&amp;h&#x3D;i&quot;|  awk &#39;&#123;print $1&#125;&#39;|uniq);</span><br><span class="line">do</span><br><span class="line">    #因为最后时间结尾可能是YYYY-mm-dd 或YYYY.mm.dd</span><br><span class="line">	day&#x3D;$&#123;index: -2&#125;</span><br><span class="line">	month&#x3D;$&#123;index:0-5:2&#125;</span><br><span class="line">	year&#x3D;$&#123;index:0-10:4&#125;</span><br><span class="line">	currentIndexDate&#x3D;&#96;date -d &quot;$year-$month-$day&quot; +%Y-%m-%d&#96; || echo &quot;$indeix&quot;</span><br><span class="line">	currentIndexDateMs&#x3D;&#96;date -d &quot;$currentIndexDate&quot; +%s&#96;</span><br><span class="line">        </span><br><span class="line">    #获取7天前时间</span><br><span class="line">	last7Day&#x3D;&#96;date -d &quot;-07 days&quot; +%Y-%m-%d&#96;</span><br><span class="line">	last7Dayms&#x3D;&#96;date -d &quot;$last7Day&quot; +%s&#96;</span><br><span class="line">	</span><br><span class="line">	if [ $currentIndexDateMs -lt $last7Dayms ];then</span><br><span class="line">		delete_es_index $index</span><br><span class="line">	fi</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
 
-
-<h4 id="spark的特点"><a href="#spark的特点" class="headerlink" title="spark的特点"></a>spark的特点</h4><p><img src="http://img.lifehelper.top/Fs_B_FpaNeZYOYUPkPx9klAsFBIG" alt="file"></p>
+<h5 id="定时脚本执行"><a href="#定时脚本执行" class="headerlink" title="定时脚本执行"></a>定时脚本执行</h5><ul>
+<li><p>每天 6点10分删除</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">crontab -e</span><br><span class="line">10 6 * * * sh &#x2F;tmp&#x2F;es-index-delete.sh &gt; &#x2F;dev&#x2F;null 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+<h5 id="其他方式"><a href="#其他方式" class="headerlink" title="其他方式"></a>其他方式</h5></li>
+<li><p>官方提供插件：elasticsearch-curator</p>
 <ul>
-<li>内存计算运行速度快</li>
+<li>地址：<a href="https://github.com/elastic/curator" target="_blank" rel="noopener">https://github.com/elastic/curator</a></li>
 </ul>
-<p>当然说它快，总要有个对比项，这里是基于和Hadoop的MapReduce来对比，由Spark是基于内存，所以它的计算速度可以达到MapReduce\Hive的数倍甚至数十倍高。</p>
-<ul>
-<li>灵活性</li>
+</li>
+<li><p>使用java代码，spring的@Scheduled或是quartz框架实现。</p>
+</li>
 </ul>
-<p>易用性强：提供了高阶的基于Java、Scala、Python和R语言的api，并且对图形化的执行引擎有所支持，其处理能力支持涵盖包括：Spark Sql，MLib和GrafphX、Spark Streaming等。</p>
-<ul>
-<li>实时数据处理</li>
-</ul>
-<p>实时处理- Spark能够处理实时流数据。与只处理存储数据的MapReduce不同，Spark能够处理实时数据，所以能够产生即时结果。</p>
-<ul>
-<li>更好的数据分析</li>
-</ul>
-<p>与MapReduce中的包括Map和Reduce函数相比，Spark包含的远不止这些。Apache Spark由一组丰富的SQL查询、机器学习算法、复杂分析等组成。有了所有这些功能，在Spark的帮助下，可以更好地执行分析。</p>
-<ul>
-<li>Spark SQL支持</li>
-</ul>
-<p>Spark SQL是Apache Spark处理结构化数据的模块。Spark SQL提供的接口为Spark提供了有关数据结构和正在执行的计算的更多信息。<br>结构化数据的处理。</p>
-<ul>
-<li>机器学习库</li>
-</ul>
-<p>Apache Spark配备了一个丰富的机器学习库库。这个库包含了大量的机器学习算法： 分类、回归、聚类和协同过滤。它还包括用于构造、评估和调优ML管道的其他工具。所有这些功能都有助于在集群中扩展。</p>
-<ul>
-<li>图形数据库GraphX</li>
-</ul>
-<p>Spark还附带一个名为GraphX的库，用于操作图形数据库和执行计算。GraphX将ETL(提取、转换和加载)过程、探索性分析和迭代图计算统一到一个系统中。</p>
-<h4 id="MapReduce及其不足"><a href="#MapReduce及其不足" class="headerlink" title="MapReduce及其不足"></a>MapReduce及其不足</h4><p>在出现Spark之前，MapReduce很流行，它是一个弹性的分布式处理框架。</p>
-<p><img src="http://img.lifehelper.top/FvdXEEiK_FZ0ePd1b5FZWcU9hBI0" alt="file"></p>
-<p>包含：</p>
-<ul>
-<li>分布式数据</li>
-</ul>
-<p>当数据上传到集群中后，它会被分割成数据块，分布在各个节点中，并在集群中复制。</p>
-<ul>
-<li>分布式计算</li>
-</ul>
-<p>通过指定一个map函数，来生成键值的映射，同样指定一个reduce函数，来合并在中间过程操作中生成的一系列中间值。这些操作在集群中会自动的并行化。</p>
-<p>数据的映射过程，在每个数据节点上执行。数据源就是节点上切分到的分布式的数据文件。</p>
-<p>简单了解MapReduce的特点后，我们来看看他有什么不足之处。</p>
-<p>首先，MapReduce只提供两步操作，既是Map和reduce操作。</p>
-<p>在mapreduce中数据是键值对的形式存在，在spark中是RDD数据结构存在。</p>
-<h4 id="RDD是什么"><a href="#RDD是什么" class="headerlink" title="RDD是什么"></a>RDD是什么</h4><p>RDD（Resilient Distributed Datasets ）被称为弹性分布式数据集。</p>
-<p>具有如下特点：</p>
-<ul>
-<li>分布式</li>
-</ul>
-<p>数据是分布在各个节点上的，所有的计算动作都是并行进行的。</p>
-<ul>
-<li>迭代式的计算。</li>
-</ul>
-<p>这也是刚才提到的，MapReduce只有两步操作，而sprak可以进行很多步计算。<br>spark在处理完一个阶段后，可以继续处理多个阶段直至结束。</p>
-<ul>
-<li>容错</li>
-</ul>
-<p>RDD一旦被创建就不能够修改，并且是容错的。为什么说是弹性的呢？</p>
-<p><img src="http://img.lifehelper.top/FrODUmx3lJJQtubpiHjoA_39wvXf" alt="file"></p>
-<p>RDD的数据是被分区的，比如有10万条数据，那可能节点1有2万条，节点2有2万条，等等。每个分区数据默认都是放在内存中的，但是当节点的内存不足以支撑这么多数据量时，spark会将数据放一部分到磁盘中，这些操作都是对用户透明的。</p>
-<p>parttion分区可以提高并行度，默认情况下Spark会自动决定一个RDD必须划分的分区数量，但是也可以在创建RDD时指定分区的数量。</p>
-<p>那节点宕机怎么办呢？</p>
-<p>节点上的rdd分区数据丢失，则他会从数据来源获取到数据后重新计算。</p>
-<h4 id="Spark开发之前"><a href="#Spark开发之前" class="headerlink" title="Spark开发之前"></a>Spark开发之前</h4><p>其实前面介绍的理论，都是为了最后引出RDD。所有的操作核心都和RDD有着密切的关系。</p>
-<p>开发伊始，就需要定义第一个rdd的来源，可能是从hdfs、kafka或是文件甚至集合。</p>
-<p>第二步，需要定义定义对rdd的操作（称为算子），<br>map/flatmap等，比mapreduce提供的map和reduce强悍太多太多了。</p>
-<p><img src="http://img.lifehelper.top/FlhG1XofOcuN4MgN5Wz8vKXNHcoQ" alt="file"></p>
-<p>第一次计算完后，数据可能会到另外的节点上，变成一个新的rdd.<br>再次反复操作。</p>
-<p>通过使用RDD 中的有向无环图(DAG)实现容错。</p>
 
     </div>
 
@@ -360,6 +308,12 @@
     
     
       
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\Elasticsearch安全插件Searchguard安装笔记\" rel="bookmark">Elasticsearch安全插件Searchguard安装笔记</a></div>
+    </li>
+  </ul>
 <div>
     
         <div style="text-align:center;color: #ccc;font-size:14px;">
@@ -397,7 +351,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://www.lifehelper.top/2020/02/28/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/" title="Spark从入门到成神之路-Spark理论开山篇（一）">https://www.lifehelper.top/2020/02/28/Spark从入门到成神之路-Spark理论开山篇（一）/</a>
+    <a href="https://www.lifehelper.top/Elasticsearch%E6%B8%85%E7%90%86%E5%8E%86%E5%8F%B2%E7%B4%A2%E5%BC%95%E7%AC%94%E8%AE%B0/" title="Elasticsearch清理历史索引笔记">https://www.lifehelper.top/Elasticsearch清理历史索引笔记/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -408,7 +362,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Spark/" rel="tag"># Spark</a>
+              <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+              <a href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag"># 运维</a>
           </div>
 
         
@@ -417,10 +372,13 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/02/24/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8BCountDownLatch%E7%9A%84%E7%94%A8%E6%B3%95%E5%8F%8A%E5%8E%9F%E7%90%86/" rel="prev" title="多线程之CountDownLatch的用法及原理">
-      <i class="fa fa-chevron-left"></i> 多线程之CountDownLatch的用法及原理
+    <a href="/Elasticsearch%E5%AE%89%E5%85%A8%E6%8F%92%E4%BB%B6Searchguard%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/" rel="prev" title="Elasticsearch安全插件Searchguard安装笔记">
+      <i class="fa fa-chevron-left"></i> Elasticsearch安全插件Searchguard安装笔记
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8BCountDownLatch%E7%9A%84%E7%94%A8%E6%B3%95%E5%8F%8A%E5%8E%9F%E7%90%86/" rel="next" title="多线程之CountDownLatch的用法及原理">
+      多线程之CountDownLatch的用法及原理 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -485,7 +443,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一句话理解Spark是什么"><span class="nav-number">1.</span> <span class="nav-text">一句话理解Spark是什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#spark的版本支持情况"><span class="nav-number">2.</span> <span class="nav-text">spark的版本支持情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#spark的特点"><span class="nav-number">3.</span> <span class="nav-text">spark的特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MapReduce及其不足"><span class="nav-number">4.</span> <span class="nav-text">MapReduce及其不足</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RDD是什么"><span class="nav-number">5.</span> <span class="nav-text">RDD是什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spark开发之前"><span class="nav-number">6.</span> <span class="nav-text">Spark开发之前</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#过期数据清理策略"><span class="nav-number">2.</span> <span class="nav-text">过期数据清理策略</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#定时脚本执行"><span class="nav-number">3.</span> <span class="nav-text">定时脚本执行</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#其他方式"><span class="nav-number">4.</span> <span class="nav-text">其他方式</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
