@@ -312,9 +312,26 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-03-01 11:07:13 / 修改时间：14:12:01" itemprop="dateCreated datePublished" datetime="2020-03-01T11:07:13+08:00">2020-03-01</time>
+              <time title="创建时间：2020-03-01 11:07:13" itemprop="dateCreated datePublished" datetime="2020-03-01T11:07:13+08:00">2020-03-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-02 18:26:07" itemprop="dateModified" datetime="2020-03-02T18:26:07+08:00">2020-03-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">Spark从入门到成神之路</span>
+                  </a>
+                </span>
             </span>
 
           
@@ -346,7 +363,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.3k</span>
+              <span>3.4k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -367,7 +384,7 @@
       
           <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>在上文中我们学习到了RDD(弹性分布式数据集)的基础概念，而本文介绍的wordcount，相当于入门spark的hello word程序。</p>
 <p>我们准备一个nohup.out文件，内容如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">my name is hyq hyq</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">my </span><br><span class="line">name </span><br><span class="line">is </span><br><span class="line">hyq </span><br><span class="line">hyq</span><br><span class="line">hyq</span><br></pre></td></tr></table></figure>
 
 
 <h4 id="引入依赖"><a href="#引入依赖" class="headerlink" title="引入依赖"></a>引入依赖</h4><p>首先新建一个maven工程，引入spark-core依赖,使用的版本为2.3.1。</p>
@@ -376,7 +393,7 @@
 <h4 id="程序编写"><a href="#程序编写" class="headerlink" title="程序编写"></a>程序编写</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public class wordCount &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;用于saprk应用的的配置，</span><br><span class="line">        &#x2F;&#x2F; 默认情况下： spark.*开头的系统变量会被加载</span><br><span class="line">        &#x2F;&#x2F;但是直接在对象上设置的同名属性，优先级高于系统变量。</span><br><span class="line">        &#x2F;&#x2F;一旦创建，在运行时不支持动态修改。</span><br><span class="line">        SparkConf sparkConf &#x3D; new SparkConf()</span><br><span class="line">                .setMaster(&quot;local&quot;)</span><br><span class="line">                .setAppName(&quot;hyq-word-count-app&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;解决本地运行spark报错heap size不足的问题</span><br><span class="line">        sparkConf.set(&quot;spark.testing.memory&quot;,(512 * 1014 * 1024)+&quot;&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;Spark功能的主要入口点</span><br><span class="line">        &#x2F;&#x2F;它的主要作用有：</span><br><span class="line">        &#x2F;&#x2F;1) 代表着和sapark集群的链接</span><br><span class="line">        &#x2F;&#x2F;2) 用于进行RDD的创建、累加和在集群中广播变量使用。</span><br><span class="line">        SparkContext sparkContext &#x3D; new SparkContext(sparkConf);</span><br><span class="line"></span><br><span class="line">        JavaSparkContext sc &#x3D; new JavaSparkContext(sparkContext);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;Read a text file from HDFS, a local file system (available on all nodes),</span><br><span class="line">        &#x2F;&#x2F; or any Hadoop-supported file system URI,</span><br><span class="line">        &#x2F;&#x2F; and return it as an RDD of Strings.</span><br><span class="line">        &#x2F;&#x2F;textFile可以从hdfs,本地文件系统（在集群模式下，需要所有节点可见）</span><br><span class="line">        JavaRDD&lt;String&gt; linesRdd &#x3D; sc.textFile(&quot;C:\\Users\\Administrator\\Desktop\\nohup.out&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;将单词按照空格分隔</span><br><span class="line">        JavaPairRDD&lt;String, Integer&gt; pairRDD &#x3D; linesRdd.flatMap((FlatMapFunction&lt;String, String&gt;) line -&gt; &#123;</span><br><span class="line">            List&lt;String&gt; list &#x3D; Arrays.asList(line.split(&quot; &quot;));</span><br><span class="line">            return list.iterator();</span><br><span class="line">        &#125;).mapToPair((PairFunction&lt;String, String, Integer&gt;) word -&gt; new Tuple2(word, 1))</span><br><span class="line">                .reduceByKey((Function2&lt;Integer, Integer, Integer&gt;) (x, y) -&gt; x + y);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        pairRDD.foreach((VoidFunction&lt;Tuple2&lt;String, Integer&gt;&gt;) tuple -&gt; &#123;</span><br><span class="line">            System.out.println(&quot;单词：&quot;+tuple._1 +&quot;出现次数： &quot;+ tuple._2);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>计算结果输出内容：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">单词：is出现次数： 1</span><br><span class="line">单词：name出现次数： 1</span><br><span class="line">单词：hyq出现次数： 2</span><br><span class="line">单词：my出现次数： 1</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">单词：is出现次数： 1</span><br><span class="line">单词：name出现次数： 1</span><br><span class="line">单词：hyq出现次数： 3</span><br><span class="line">单词：my出现次数： 1</span><br></pre></td></tr></table></figure>
 
 
 <h4 id="核心类的理解和学习"><a href="#核心类的理解和学习" class="headerlink" title="核心类的理解和学习"></a>核心类的理解和学习</h4><p><img src="http://img.lifehelper.top/FnofNDAP4zzqBxQhZHch5Wmq-mf4" alt="file"></p>
@@ -396,7 +413,18 @@
 <p>shuffle依赖是两个stage的分界点。shuffle操作一般都是任务中最耗时耗资源的部分。因为数据可能存放在不同的节点上，</p>
 <p>下一个stage的执行首先要去拉取上一个stage的数据（shuffle read操作），保存在自己的节点上，就会增加网络通信和IO。</p>
 <p>而Task是真正执行的工作单元，对一个Stage之内的RDD进行串行操作的计算任务。多个Task组成一个Stage。</p>
-<h5 id="WordCount执行逻辑图"><a href="#WordCount执行逻辑图" class="headerlink" title="WordCount执行逻辑图"></a>WordCount执行逻辑图</h5>
+<h5 id="WordCount执行逻辑图"><a href="#WordCount执行逻辑图" class="headerlink" title="WordCount执行逻辑图"></a>WordCount执行逻辑图</h5><p><img src="http://img.lifehelper.top/FnyuZu3kdSYfP6H6afJuU4iACK1F" alt="file"></p>
+<p>上述逻辑图配合线上运行的UI视图来加深先前提出的各个逻辑理念。</p>
+<p><img src="http://img.lifehelper.top/Fs361H7AUVoPfQ-iU3Yaa-dsD_u4" alt="file"></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>本篇文章，我们使用spark编写了一个入门级的WordCount程序，通过程序：</p>
+<ul>
+<li>了解到了通过文本文件创建RDD的方式，和RDD的转换。</li>
+<li>初步了解了Spark的常用api的使用。</li>
+<li>宽依赖和窄依赖的概念。</li>
+<li>两种类型的算子操作。</li>
+<li>wordcount程序的逻辑流程图理解。</li>
+</ul>
+
       
     </div>
 
