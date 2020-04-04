@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#468eff">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#468eff">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.lifehelper.top","root":"/","scheme":"Gemini","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#468eff","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":false,"nav":null,"activeClass":"changyan"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言Maven 是众多 Java 开发者所青睐的构建工具之一。还记得未接触Maven之前，所有的依赖包都是从网站找的，找了某个jar包后，又要去搜索它的依赖，如此循环往复。耗费大量的时间和精力，很多初识Maven的开发者可能会存在很多疑惑，没有系统的摸清Maven的用法，所以本篇文章想要介绍在Maven领域的一切实践思路，让读者更好的领略 Maven 的精髓。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用maven构建的工程的实践心得">
+<meta property="og:url" content="https://www.lifehelper.top/%E4%BD%BF%E7%94%A8maven%E6%9E%84%E5%BB%BA%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%9A%84%E5%AE%9E%E8%B7%B5%E5%BF%83%E5%BE%97/index.html">
+<meta property="og:site_name" content="侠梦的开发笔记">
+<meta property="og:description" content="前言Maven 是众多 Java 开发者所青睐的构建工具之一。还记得未接触Maven之前，所有的依赖包都是从网站找的，找了某个jar包后，又要去搜索它的依赖，如此循环往复。耗费大量的时间和精力，很多初识Maven的开发者可能会存在很多疑惑，没有系统的摸清Maven的用法，所以本篇文章想要介绍在Maven领域的一切实践思路，让读者更好的领略 Maven 的精髓。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://img.lifehelper.top/FkSPuU_RrV_cBm4QAQ9xE3qfCaA7">
+<meta property="og:image" content="http://img.lifehelper.top/Fs_VvdVN0uxBZ_3vDYvuAuFXlJ-9">
+<meta property="og:image" content="http://img.lifehelper.top/FrHfiKzxxmzomzz0erR7-QAkNUWN">
+<meta property="og:image" content="http://img.lifehelper.top/FlUPyp-5mbKt4mkUywci7Br0-nAz">
+<meta property="og:image" content="http://img.lifehelper.top/FlkJydgbNwsBvCa3vSpjmHLyLWvJ">
+<meta property="og:image" content="http://img.lifehelper.top/FoHptRgtbzYhf6sDv6Aw4xAFAKKB">
+<meta property="og:image" content="http://img.lifehelper.top/FuPF1LzYmKh-78VjNDVyWNVgj-D1">
+<meta property="og:image" content="http://img.lifehelper.top/Fkc8becXnsO9sSJaD7j4CioXl9XH">
+<meta property="og:image" content="http://img.lifehelper.top/Fub86eF97YlX4DHlx15CllSCkOE7">
+<meta property="og:image" content="http://img.lifehelper.top/FhOkQXuZigTlSkSEEPHfKpIJhzS3">
+<meta property="og:image" content="http://img.lifehelper.top/FuDlNOlOIByoAp7JR7wChBEFVoDV">
+<meta property="og:image" content="http://img.lifehelper.top/FibYe02xigrP4A9AXE9BI-b_3r3D">
+<meta property="og:image" content="http://img.lifehelper.top/FjfM9rOzJTjA6r6feX7UkXjT6IYA">
+<meta property="article:published_time" content="2020-04-04T04:34:42.000Z">
+<meta property="article:modified_time" content="2020-04-04T04:38:15.321Z">
+<meta property="article:author" content="侠梦">
+<meta property="article:tag" content="Maven">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://img.lifehelper.top/FkSPuU_RrV_cBm4QAQ9xE3qfCaA7">
+
+<link rel="canonical" href="https://www.lifehelper.top/%E4%BD%BF%E7%94%A8maven%E6%9E%84%E5%BB%BA%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%9A%84%E5%AE%9E%E8%B7%B5%E5%BF%83%E5%BE%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>使用maven构建的工程的实践心得 | 侠梦的开发笔记</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?41ade542312b97d643a8df3f7f53917e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  <script>
+    !function(e,t,n,g,i){e[i]=e[i]||function(){(e[i].q=e[i].q||[]).push(arguments)},n=t.createElement("script"),tag=t.getElementsByTagName("script")[0],n.async=1,n.src=('https:'==document.location.protocol?'https://':'http://')+g,tag.parentNode.insertBefore(n,tag)}(window,document,"script","assets.growingio.com/2.1/gio.js","gio");
+    gio('init', 'ad858f46b1a00497', {});
+    gio('send');
+  </script>
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">侠梦的开发笔记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">自助者,天助之</h1>
+      
+  </div>
+
+  <div class="site-nav-right"></div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">8</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">10</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E4%BD%BF%E7%94%A8maven%E6%9E%84%E5%BB%BA%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%9A%84%E5%AE%9E%E8%B7%B5%E5%BF%83%E5%BE%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          使用maven构建的工程的实践心得
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:34:42 / 修改时间：12:38:15" itemprop="dateCreated datePublished" datetime="2020-04-04T12:34:42+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Maven%E7%AE%A1%E7%90%86/" itemprop="url" rel="index">
+                    <span itemprop="name">Maven管理</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/%E4%BD%BF%E7%94%A8maven%E6%9E%84%E5%BB%BA%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%9A%84%E5%AE%9E%E8%B7%B5%E5%BF%83%E5%BE%97/" class="post-meta-item leancloud_visitors" data-flag-title="使用maven构建的工程的实践心得" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/%E4%BD%BF%E7%94%A8maven%E6%9E%84%E5%BB%BA%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%9A%84%E5%AE%9E%E8%B7%B5%E5%BF%83%E5%BE%97/#SOHUCS" itemprop="discussionUrl">
+        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="使用maven构建的工程的实践心得/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Maven 是众多 Java 开发者所青睐的构建工具之一。还记得未接触Maven之前，所有的依赖包都是从网站找的，找了某个jar包后，又要去搜索它的依赖，如此循环往复。耗费大量的时间和精力，很多初识Maven的开发者可能会存在很多疑惑，没有系统的摸清Maven的用法，所以本篇文章想要介绍在Maven领域的一切实践思路，让读者更好的领略 Maven 的精髓。</p>
+<a id="more"></a> 
+
+<h3 id="maven的兼容性矩阵"><a href="#maven的兼容性矩阵" class="headerlink" title="maven的兼容性矩阵"></a>maven的兼容性矩阵</h3><p><img src="http://img.lifehelper.top/FkSPuU_RrV_cBm4QAQ9xE3qfCaA7" alt="file"></p>
+<p>maven的兼容性可能一直被大多数人忽视，确实属于比较小众的知识点，可偏偏就被笔者遇到了。事情起源于一次系统重装，重装后高高兴兴的下载的开发工具idea和maven。但是由于两者的兼容性问题，导致一直打包报错。整个经历过程如下：</p>
+<p><img src="http://img.lifehelper.top/Fs_VvdVN0uxBZ_3vDYvuAuFXlJ-9" alt="file"></p>
+<p>看来是Idea 和 maven的兼容性问题导致的。果然，每次下载最新版本，总能能遇到一些坑。后续通过 idea官网 也印证了这个兼容性的bug。</p>
+<p><img src="http://img.lifehelper.top/FrHfiKzxxmzomzz0erR7-QAkNUWN" alt="file"></p>
+<p>官方已经在IntelliJ IDEA 2019.2.3 及 2019.2.2.3版本后修复了这个问题。</p>
+<p>Maven 和 JDK 的兼容性，这个只需要注意满足最低版本即可，由于现在普遍使用的是Java 8，所以一般不会有什么问题，参考整理的兼容性矩阵如下：</p>
+<p><img src="http://img.lifehelper.top/FlUPyp-5mbKt4mkUywci7Br0-nAz" alt="file"></p>
+<h3 id="认识-maven-的生命周期"><a href="#认识-maven-的生命周期" class="headerlink" title="认识 maven 的生命周期"></a>认识 maven 的生命周期</h3><p>相信一提到Maven，大家脑海里浮现出来它的第一个作用，就是用来打包，但是经常“用完即走”的我们真的到了需要认认真真梳理一下Maven的相关概念了。</p>
+<p>Maven为我们提供了一套自动化的构建方案，从最基础的清理、编译代码、运行测试到打包和部署。这一系列过程称之为它的生命周期。</p>
+<p><img src="http://img.lifehelper.top/FlkJydgbNwsBvCa3vSpjmHLyLWvJ" alt="file"></p>
+<p>默认情况下，Maven有三套相互独立的生命周期，分别是 clean、default 和site。每个生命周期包含一些阶段（phase），阶段是有顺序的，后面的阶段依赖于前面的阶段。每个阶段的内部由 插件的 Goals(目标）组成。</p>
+<p>可以这样理解，其实phase就是goal的容器。真正被执行的都是goal （目标）。</p>
+<p>phase （阶段）被执行时，实际执行的都是被绑定到该 phase （阶段）的一系列goal（目标）。</p>
+<p>而 goal（目标） 与 goal （目标）之间是独立的。单独执行一个goal不会导致其他goal被执行。</p>
+<h3 id="深入理解-maven-的生命周期"><a href="#深入理解-maven-的生命周期" class="headerlink" title="深入理解 maven 的生命周期"></a>深入理解 maven 的生命周期</h3><p>maven使用一个名为 components.xml 的配置文件来描述其架构的组织结构，以我本地的maven 3.6.0版本为例。不同版本的maven， 配置文件的路径相似。 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apache-maven-$&#123;version&#125;\lib\maven-core-$&#123;version&#125;.jar</span><br><span class="line">\META-INFO\plexus\conponents.xml</span><br></pre></td></tr></table></figure>
+
+
+<p>这里我们针对default生命周期来作详细的了解：</p>
+<p><img src="http://img.lifehelper.top/FoHptRgtbzYhf6sDv6Aw4xAFAKKB" alt="file"></p>
+<p>下图是我整理出default生命周期的所有 phase (阶段)。</p>
+<p><img src="http://img.lifehelper.top/FuPF1LzYmKh-78VjNDVyWNVgj-D1" alt="file"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn &lt;phase&gt; &#123; 例如: mvn package &#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到 当我们执行一个 简单的 mvn package 时，maven其实内部按照顺序流转了很多的phase (阶段)。</p>
+<p>那如何来理解 Goal (目标）呢？</p>
+<p>我们前面说过，一系列的 Goal （目标） 组成 了  phase (阶段)。</p>
+<p>相信你用过maven的很多插件吧？这里我以 打 jar包的插件为例来介绍：</p>
+<p><img src="http://img.lifehelper.top/Fkc8becXnsO9sSJaD7j4CioXl9XH" alt="file"></p>
+<p>聪明的你看到这个图可能已经猜到了，jar：后面的一系列单词 就是Goal （目标）。</p>
+<p>解释一下，goal 其实是由存在于Maven的插件plugin提供的一个个小的功能程序。你可以根据自己的实际需求，灵活的来组装他们，实现各种定制的功能。执行格式为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn [插件名称]:[goal的名称]</span><br></pre></td></tr></table></figure>
+
+<p>再举一个实际案例，在打包时，分离出三方的依赖包。我们会使用到一个叫maven-dependency-plugin的插件。</p>
+<p><img src="http://img.lifehelper.top/Fub86eF97YlX4DHlx15CllSCkOE7" alt="file"></p>
+<p>上图表明，我制定了一个copy-dependencies 的目标，在 prepare-package 阶段执行。也就是在执行package打包之前，拷贝依赖到当前工程的lib文件夹下面。</p>
+<p>直接通过执行命令也能达到上述的效果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn clean dependency:copy-dependencies package</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://img.lifehelper.top/FhOkQXuZigTlSkSEEPHfKpIJhzS3" alt="file"></p>
+<h3 id="Maven-管理项目的依赖"><a href="#Maven-管理项目的依赖" class="headerlink" title="Maven 管理项目的依赖"></a>Maven 管理项目的依赖</h3><p>Maven提供的依赖管理，是其中的一大核心功能。就像文章开始所说的，我们需要一个jar包，这个jar包又依赖于另外的jar包，这种依赖关系会不断的传递，直至最后一个没有任何其他依赖包。</p>
+<p>Maven就是通过自动去发现和包含这些传递的依赖，避免了我们人工的去搜索下载。</p>
+<p>这个传递依赖的层级是没有限制的，在使用过程中需要注意的一点是，循环依赖的问题。</p>
+<p><img src="http://img.lifehelper.top/FuDlNOlOIByoAp7JR7wChBEFVoDV" alt="file"></p>
+<p>遭遇到循环依赖如何解决呢？Maven 提供了一个  build-helper-maven-plugin 插件。其原理是： 将三个模块合并成一个中间的工程，临时编译出模块D，然后三个模块再分别依赖D 进行编译。</p>
+<p>不推荐使用这种办法，这会导致我们的项目工程结构很混乱，只能作为临时规避的一个措施来使用。</p>
+<p>还有一种办法是通过分析依赖，从根本上消除掉循环依赖。常用的分析依赖的命令有：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mvn dependency:help</span><br><span class="line">mvn dependency:analyze</span><br><span class="line">mvn dependency:tree</span><br><span class="line">mvn dependency:tree -Dverbose</span><br></pre></td></tr></table></figure>
+
+<p>除了使用命令查看依赖树，常见的办法还有：</p>
+<ul>
+<li>在项目启动时把所有的加载的 jar 包都打印出来，添加 VM 参数 -verbose:class 。通过打印的信息确认是否正确的 jar 包被依赖。</li>
+</ul>
+<ul>
+<li>有的时候仅仅通过 mvn dependency:tree 可能无法快速的发现冲突，这个时候就可以尝试使用 Enforcer 插件，这个插件也可以自定义许多规则，我们可以使用 dependencyConvergence 规则。 来保证所有的依赖都使用相同的版本。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;build&gt;</span><br><span class="line">&lt;plugins&gt;</span><br><span class="line">	&lt;plugin&gt;</span><br><span class="line">		&lt;groupId&gt;org.apache.maven.plugins&lt;&#x2F;groupId&gt;</span><br><span class="line">		&lt;artifactId&gt;maven-enforcer-plugin&lt;&#x2F;artifactId&gt;</span><br><span class="line">		&lt;version&gt;1.3.1&lt;&#x2F;version&gt;</span><br><span class="line">		&lt;executions&gt;</span><br><span class="line">			&lt;execution&gt;</span><br><span class="line">				&lt;id&gt;enforce&lt;&#x2F;id&gt;</span><br><span class="line">				&lt;configuration&gt;</span><br><span class="line">					&lt;rules&gt;&lt;DependencyConvergence &#x2F;&gt;&lt;&#x2F;rules&gt;</span><br><span class="line">				&lt;&#x2F;configuration&gt;</span><br><span class="line">				&lt;goals&gt;</span><br><span class="line">					&lt;goal&gt;enforce&lt;&#x2F;goal&gt;</span><br><span class="line">				&lt;&#x2F;goals&gt;</span><br><span class="line">			&lt;&#x2F;execution&gt;</span><br><span class="line">		&lt;&#x2F;executions&gt;</span><br><span class="line">	&lt;&#x2F;plugin&gt;</span><br><span class="line">&lt;&#x2F;plugins&gt;</span><br><span class="line">&lt;&#x2F;build&gt;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="Maven-管理的依赖范围"><a href="#Maven-管理的依赖范围" class="headerlink" title="Maven 管理的依赖范围"></a>Maven 管理的依赖范围</h3><p>依赖范围主要是用来限制各个包的传递性。并且影响我们最终的构建结果。<br>在引入依赖时，通过<scope>标签来指定依赖的范围。</p>
+<p><img src="http://img.lifehelper.top/FibYe02xigrP4A9AXE9BI-b_3r3D" alt="file"></p>
+<p>Maven 内部为我们提供了 6种依赖的范围：</p>
+<ul>
+<li>compile：缺省值，编译、测试都有效。</li>
+</ul>
+<ul>
+<li><p>provided:编译，测试都有效，但是在运行时并不会加入。例如Servlet API，因为Web容器本身有，如果加入就会出现冲突。</p>
+</li>
+<li><p>runtime：测试、运行有效，表明这个依赖项不是编译所必须的，但是是执行时需要的。需要位于运行时的类路径中。</p>
+</li>
+</ul>
+<ul>
+<li><p>test：仅测试时有效，这个范围不是可传递的。</p>
+</li>
+<li><p>system：与本机相关，可移植性差。</p>
+</li>
+<li><p>import：导入的依赖范围，仅适用在dependencyManager中，表示从其他pom导入dependency配置。</p>
+</li>
+</ul>
+<h3 id="dependencyManagement-作用"><a href="#dependencyManagement-作用" class="headerlink" title="dependencyManagement 作用"></a>dependencyManagement 作用</h3><p>上面介绍的依赖范围都比较好理解，最后一个import范围涉及到一个dependencyManagement，这里我们具体解释一下他和dependencies 的区别。</p>
+<p>dependencyManagement 主要有两个作用：</p>
+<ul>
+<li>一是集中管理项目的依赖项</li>
+<li>二是控制使用的依赖项的版本</li>
+</ul>
+<p>1、 如果有多个子模块依赖相同的包，那么放在<dependencyManagement> 中来管理。</p>
+<p>使用 dependencyManagement 声明依赖，在项目中并不会实际引入，因此子项目需要显示声明需要用的依赖。</p>
+<p>当不在子项目中声明依赖的时候，是不会从父项目中继承下来的。</p>
+<p>只有在子项目中写了该依赖项，并且没有指定具体版本，才会从父项目中继承该项，并且 version 和 scope 都读取自父 pom</p>
+<p>如果子项目中指定了版本号，那么会使用子项目中指定的 jar 版本</p>
+<p>而对于 dependencies ：</p>
+<p>dependencies 即使在子项目中不写该依赖项，那么子项目仍然会从父项目中继承该依赖项。父工程使用 dependencyManagement 假引用，目的是管理版本号。dependencies 用于实际上需要引入的工程，这些工程如果继承于父工程会找到对应的版本号。</p>
+<h3 id="Maven-的仓库分类"><a href="#Maven-的仓库分类" class="headerlink" title="Maven 的仓库分类"></a>Maven 的仓库分类</h3><p>从大类来看，Maven仓库主要分为两大类，一是本地仓库，二是远程仓库。</p>
+<p>本地仓库，主要是用来存储从远程仓库下载的插件和 jar 包，当项目需要使用<br>插件 或 jar 包时，会优先从本地仓库中查找。</p>
+<p>远程仓库，是当无法在本地仓库中查找到包时，会默认去远程仓库下载。</p>
+<p>远程仓库包括了，中央仓库、镜像仓库和私服。</p>
+<p><img src="http://img.lifehelper.top/FjfM9rOzJTjA6r6feX7UkXjT6IYA" alt="file"></p>
+<p>而在配置了多个 Maven 仓库查找依赖的顺序大致如下：</p>
+<ul>
+<li>1) 在本地仓库中寻找，如果没有则进入下一步。</li>
+</ul>
+<ul>
+<li><p>2) 在全局配置的私服仓库（settings.xml中配置的并有激活）中寻找，如果没有则进入下一步。</p>
+</li>
+<li><p>3) 在项目自身配置的私服仓库（pom.xml）中寻找，如果没有则进入下一步。</p>
+</li>
+<li><p>4) 在中央仓库中寻找，如果没有则终止寻找。</p>
+</li>
+</ul>
+<h3 id="Maven-内置的变量"><a href="#Maven-内置的变量" class="headerlink" title="Maven 内置的变量"></a>Maven 内置的变量</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$&#123;basedir&#125; 表示项目根目录(即pom.xml文件所在目录)</span><br><span class="line"></span><br><span class="line">$&#123;project.build.directory&#125; 构建目录，缺省为target目录</span><br><span class="line"></span><br><span class="line">$&#123;project.build.outputDirectory&#125; 构建过程输出目录，缺省为target&#x2F;classes</span><br><span class="line"></span><br><span class="line">$&#123;project.build.finalName&#125; 产出物名称比如jar包，缺省为$&#123;project.artifactId&#125;-$&#123;project.version&#125;</span><br><span class="line"></span><br><span class="line">$&#123;project.packaging&#125; 打包类型，缺省为jar</span><br><span class="line"></span><br><span class="line">$&#123;project.xxx&#125; 当前pom文件的任意节点的内容</span><br><span class="line"></span><br><span class="line">$&#123;env.xxx&#125; 获取系统环境变量。例如,&quot;env.PATH&quot;指代了$path环境变量（在Windows上是%PATH%）。</span><br><span class="line"></span><br><span class="line">$&#123;settings.xxx&#125; 指代了settings.xml中对应元素的值。</span><br><span class="line"></span><br><span class="line">Java System Properties: 所有可通过java.lang.System.getProperties()访问的属性都能在POM中使用</span><br><span class="line"></span><br><span class="line">比较实用的，例如 $&#123;JAVA_HOME&#125;。</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文主要以一个兼容性问题为引，介绍了maven的兼容性矩阵，及其三大默认的生命周期，了解了阶段（phase） 和 Goals(目标）的概念。对比了dependencyManagement和dependencies的区别。以及Maven仓库的分类、依赖管理的范围及内置实用变量的学习。希望能帮助到大家。</p>
+
+    </div>
+
+    
+    
+    
+      
+<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">
+        -------------本文结束 <i class="fa fa-paw"></i> 感谢您的阅读------------- <br />
+
+        <div style='color:red'>
+        创建了一个java方面的互助群，和其他传统的学习群不同。<br />
+
+        在本群，你可以<br />
+        1）阐述你在开发过程中遇到的问题，群友集思广益，高效解答。<br />
+        2）分享自己学习的一些心得，让后来学习者少踩坑。<br />
+        3）资源共享，无论是好的学习视频还是文档都可以在群内共享。<br />
+        关注后回复问题答案与群友讨论：java中Integer包装类的基本数据类型是？<br />
+        </div>
+        <img width="600px" src="https://sourl.cn/LkG43C" alt="扫码关注，互相帮助" />
+        </div>
+    
+</div>
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    有疑问？加群讨论吧
+  </button>
+  <div id="qr" style="display: none;">
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>侠梦
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.lifehelper.top/%E4%BD%BF%E7%94%A8maven%E6%9E%84%E5%BB%BA%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%9A%84%E5%AE%9E%E8%B7%B5%E5%BF%83%E5%BE%97/" title="使用maven构建的工程的实践心得">https://www.lifehelper.top/使用maven构建的工程的实践心得/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Maven/" rel="tag"># Maven</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/%E9%AB%98%E6%95%88%E7%8E%87%E7%BC%96%E5%86%99Dockerfile%E9%9C%80%E8%A6%81%E7%BB%95%E8%BF%87%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9D%91/" rel="prev" title="高效率编写Dockerfile需要绕过的一些坑">
+      <i class="fa fa-chevron-left"></i> 高效率编写Dockerfile需要绕过的一些坑
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="SOHUCS"></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#maven的兼容性矩阵"><span class="nav-number">2.</span> <span class="nav-text">maven的兼容性矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#认识-maven-的生命周期"><span class="nav-number">3.</span> <span class="nav-text">认识 maven 的生命周期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#深入理解-maven-的生命周期"><span class="nav-number">4.</span> <span class="nav-text">深入理解 maven 的生命周期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maven-管理项目的依赖"><span class="nav-number">5.</span> <span class="nav-text">Maven 管理项目的依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maven-管理的依赖范围"><span class="nav-number">6.</span> <span class="nav-text">Maven 管理的依赖范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dependencyManagement-作用"><span class="nav-number">7.</span> <span class="nav-text">dependencyManagement 作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maven-的仓库分类"><span class="nav-number">8.</span> <span class="nav-text">Maven 的仓库分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maven-内置的变量"><span class="nav-number">9.</span> <span class="nav-text">Maven 内置的变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">10.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="侠梦"
+      src="/images/xiameng.jpg">
+  <p class="site-author-name" itemprop="name">侠梦</p>
+  <div class="site-description" itemprop="description">记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Hyq0823" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Hyq0823" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:82347749@qq.com" title="E-Mail → mailto:82347749@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5026953203" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;5026953203" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/u012811805" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;u012811805" rel="noopener" target="_blank"><i class="fa fa-fw fa-csdn"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/huang-quan-3-41" title="zhihu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;huang-quan-3-41" rel="noopener" target="_blank"><i class="fa fa-fw fa-zhihu"></i>zhihu</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://lzhdeblog.cn/" title="http:&#x2F;&#x2F;lzhdeblog.cn" rel="noopener" target="_blank">卓丶恒</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">京ICP备19051662号 </a>
+      <img src="https://static.dy208.cn/o_1dfilp8ruo521thr1hvf18ji17soa.png" style="display: inline-block;">
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">侠梦</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">29k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26 分钟</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    url = encodeURI(url);
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.getAttribute('id'));
+      var title = visitors.getAttribute('data-flag-title');
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title: title, url: url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.getAttribute('id'));
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=SeOVHDar91vu7xVwMnuIdNHP-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method: method,
+          headers: {
+            'X-LC-Id'     : 'SeOVHDar91vu7xVwMnuIdNHP-gzGzoHsz',
+            'X-LC-Key'    : '1loCMEyjQCCIrLaDO02MaFF4',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script>
+  NexT.utils.loadComments(document.querySelector('#SOHUCS'), () => {
+    var appid = 'cyuHAs3xL';
+    var conf = 'c5eb46fa96e7055de848fc1bfded295d';
+    var width = window.innerWidth || document.documentElement.clientWidth;
+    if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+    } else {
+      var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+    }
+  });
+  </script>
+  <script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+</body>
+</html>
