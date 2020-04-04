@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#468eff">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#468eff">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.lifehelper.top","root":"/","scheme":"Gemini","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#468eff","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":false,"nav":null,"activeClass":"changyan"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言定时任务的使用，在开发中可谓是家常便饭了，定时发送邮件、短信。 避免数据库，数据表过大，定时将数据转储。通知、对账等等。 当然实现定时任务的方式也有很多，比如使用 linux 下的 contab 脚本，jdk 中自带的 Timer 类。Spring Task 或是 Quartz 。 相信你也有过如下的疑问：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为什么你的 Spring Task 定时任务没有定时执行？">
+<meta property="og:url" content="https://www.lifehelper.top/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/index.html">
+<meta property="og:site_name" content="侠梦的开发笔记">
+<meta property="og:description" content="前言定时任务的使用，在开发中可谓是家常便饭了，定时发送邮件、短信。 避免数据库，数据表过大，定时将数据转储。通知、对账等等。 当然实现定时任务的方式也有很多，比如使用 linux 下的 contab 脚本，jdk 中自带的 Timer 类。Spring Task 或是 Quartz 。 相信你也有过如下的疑问：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://img.lifehelper.top/FpwS26vWYwEDctcCP6aowKlfKQ3t">
+<meta property="og:image" content="http://img.lifehelper.top/Fg6_6iryENlm9JcCS2w5pIM3evud">
+<meta property="og:image" content="http://img.lifehelper.top/Fko1U_o9li5Bh8YgbrmIHOP03uXE">
+<meta property="og:image" content="http://img.lifehelper.top/FjVT_pcU6EaqbQ9TMCZS1VpLNQX-">
+<meta property="og:image" content="http://img.lifehelper.top/FlMdgw12FbeYKjo7QusuYdnDMclQ">
+<meta property="og:image" content="http://img.lifehelper.top/FikztlDJLqQ2aTkrEH2fqoRsfOM9">
+<meta property="og:image" content="http://img.lifehelper.top/Fu_en3iSvSN1SkMEd-2-mZCx8Gd_">
+<meta property="og:image" content="http://img.lifehelper.top/FuMx8pvzjuA5viUzVUPhXYA5f9Fe">
+<meta property="og:image" content="http://img.lifehelper.top/FvZtqSFZ3QEyNmQbnyWN6Fb23TPx">
+<meta property="og:image" content="http://img.lifehelper.top/FghyvOgWy05NBvs2po0tjRNlbM7v">
+<meta property="og:image" content="http://img.lifehelper.top/FqPfzHwH5MircEBP9QK3K5Rmf-4S">
+<meta property="og:image" content="http://img.lifehelper.top/FqfOjuVf7yQGlADcKlgKbTrUdKxV">
+<meta property="article:published_time" content="2020-04-04T04:50:16.000Z">
+<meta property="article:modified_time" content="2020-04-04T04:52:26.192Z">
+<meta property="article:author" content="侠梦">
+<meta property="article:tag" content="Spring">
+<meta property="article:tag" content="微服务">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://img.lifehelper.top/FpwS26vWYwEDctcCP6aowKlfKQ3t">
+
+<link rel="canonical" href="https://www.lifehelper.top/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>为什么你的 Spring Task 定时任务没有定时执行？ | 侠梦的开发笔记</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?41ade542312b97d643a8df3f7f53917e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  <script>
+    !function(e,t,n,g,i){e[i]=e[i]||function(){(e[i].q=e[i].q||[]).push(arguments)},n=t.createElement("script"),tag=t.getElementsByTagName("script")[0],n.async=1,n.src=('https:'==document.location.protocol?'https://':'http://')+g,tag.parentNode.insertBefore(n,tag)}(window,document,"script","assets.growingio.com/2.1/gio.js","gio");
+    gio('init', 'ad858f46b1a00497', {});
+    gio('send');
+  </script>
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">侠梦的开发笔记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">自助者,天助之</h1>
+      
+  </div>
+
+  <div class="site-nav-right"></div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">17</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">16</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          为什么你的 Spring Task 定时任务没有定时执行？
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:50:16 / 修改时间：12:52:26" itemprop="dateCreated datePublished" datetime="2020-04-04T12:50:16+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SpringBoot%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">SpringBoot微服务系列</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/" class="post-meta-item leancloud_visitors" data-flag-title="为什么你的 Spring Task 定时任务没有定时执行？" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/#SOHUCS" itemprop="discussionUrl">
+        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="为什么你的-Spring-Task-定时任务没有定时执行？/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>定时任务的使用，在开发中可谓是家常便饭了，定时发送邮件、短信。 避免数据库，数据表过大，定时将数据转储。通知、对账等等。</p>
+<p>当然实现定时任务的方式也有很多，比如使用 linux 下的 contab 脚本，jdk 中自带的 Timer 类。Spring Task 或是 Quartz 。</p>
+<p>相信你也有过如下的疑问：</p>
+<a id="more"></a> 
+
+<ul>
+<li>Spring Task 的 contab 的表达式 和 linux 下的 contab 有什么区别？</li>
+<li>crontab 表达式记不住？</li>
+<li>定时任务阻塞会有什么影响？</li>
+<li>多个定时任务的情况下是如何运行的？</li>
+<li>具有相同表达式的定时任务，他们的执行顺序如何？</li>
+<li>为什么async异步任务没有生效？</li>
+</ul>
+<p>所以这篇文章，我们来介绍一下，在 Spring Task 中， 定时任务的执行原理及相关问题。演示环境为 Spring Boot 项目。</p>
+<h3 id="SpringBoot-定时任务的原理"><a href="#SpringBoot-定时任务的原理" class="headerlink" title="SpringBoot 定时任务的原理"></a>SpringBoot 定时任务的原理</h3><p> 相信绝大部分开发者都使用过Spring Boot 为我们提供的定时任务的 Starter 和定时任务的注解。所以我们来主要介绍一下 Spring Boot 实现定时任务的原理，和其相关注解的作用。</p>
+<p>Spring 在 3.0版本后通过 @Scheduled 注解来完成对定时任务的支持。</p>
+<p><img src="http://img.lifehelper.top/FpwS26vWYwEDctcCP6aowKlfKQ3t" alt="file"></p>
+<p>在我们使用时，需要在Application 启动类上加上 @EnableScheduling 注解，它是从Spring 3.1后开始提供的。</p>
+<p><img src="http://img.lifehelper.top/Fg6_6iryENlm9JcCS2w5pIM3evud" alt="file"></p>
+<p>由于现在 Spring3 版本较低，使用得比较少了，可能并不会考虑太多细节，大多只需要关注目标实现，所以我们在配套使用两个注解的时候，并不会出现什么问题。</p>
+<p>在3.0 中 ，是通过</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 配置任务线性池 --&gt;  </span><br><span class="line">    &lt;!-- 任务执行器线程数量 --&gt; </span><br><span class="line">    &lt;task:executor id&#x3D;&quot;executor&quot; pool-size&#x3D;&quot;3&quot; &#x2F;&gt;  </span><br><span class="line">    &lt;!-- 任务调度器线程数量 --&gt; </span><br><span class="line">    &lt;task:scheduler id&#x3D;&quot;scheduler&quot; pool-size&#x3D;&quot;3&quot; &#x2F;&gt;  </span><br><span class="line">    &lt;!-- 启用annotation方式 --&gt;  </span><br><span class="line">    &lt;task:annotation-driven scheduler&#x3D;&quot;scheduler&quot;  </span><br><span class="line">        executor&#x3D;&quot;executor&quot; proxy-target-class&#x3D;&quot;true&quot; &#x2F;&gt;</span><br></pre></td></tr></table></figure>
+
+<p>上述的 XML 配置 和 @Scheduled 配合实现定时任务的，而我们这里的 @EnableScheduling 其实类似的和它等价，是用来发现注解了 @Scheduled 的方法，没有这个注解光有  @Scheduled 是无法执行的，大家可以做一个简单案例测试一下，其底层是 Spring 自己实现的一套定时任务的处理逻辑，所以使用起来比较简单。</p>
+<h3 id="任务一直阻塞会怎么样？"><a href="#任务一直阻塞会怎么样？" class="headerlink" title="任务一直阻塞会怎么样？"></a>任务一直阻塞会怎么样？</h3><p>介绍了两个注解的作用后，我们来开始做实验，简单的写一个定时执行的方法。</p>
+<p><img src="http://img.lifehelper.top/Fko1U_o9li5Bh8YgbrmIHOP03uXE" alt="file"></p>
+<p>每隔 20s 输出一句话，在输出几行记录后，打上了一个断点。</p>
+<p>对后续的任务有什么影响呢？</p>
+<p><img src="http://img.lifehelper.top/FjVT_pcU6EaqbQ9TMCZS1VpLNQX-" alt="file"></p>
+<p>可以看到，断点时的后续任务是阻塞着的，从图上，我们还可以看出初始化的名为pool-1-thread-1 的线程池同样证实了我们的想法，线程池中只有一个线程，创建方法是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Executors.newSingleThreadScheduledExecutor();</span><br></pre></td></tr></table></figure>
+
+<p>从这个例子来看，断点时，任务会一直阻塞，当阻塞恢复后，会立马执行阻塞的任务。线程池内部时采用 DelayQueue 延迟队列实现的，它的特点是： 无界、延迟、阻塞的一种队列，能按一定的顺序对工作队列中的元素进行排列。<br><img src="http://img.lifehelper.top/FlMdgw12FbeYKjo7QusuYdnDMclQ" alt="file"></p>
+<h3 id="多个定时任务的执行"><a href="#多个定时任务的执行" class="headerlink" title="多个定时任务的执行"></a>多个定时任务的执行</h3><p>通过上面的实验，我们知道，咋看默认情况下，任务的线程池，只会有一个线程来执行任务，如果有多个定时任务，它们也应该是串行执行的。</p>
+<p><img src="http://img.lifehelper.top/FikztlDJLqQ2aTkrEH2fqoRsfOM9" alt="file"></p>
+<p>从上图可以看出，一旦线程执行任务1后，就会睡眠2分钟。线程在死循环内部一直处于Running 状态。</p>
+<p><img src="http://img.lifehelper.top/Fu_en3iSvSN1SkMEd-2-mZCx8Gd_" alt="file"></p>
+<p>通过观察日志，根本没有任务2的输出，我们知道默认情况下，多个定时任务是串行执行的，类似于多辆车过单行道的桥，如果一个任务出现阻塞，其他的任务都会受到影响。</p>
+<p>那如果线程池包含多个线程的情况下，多个定时任务并发的情况是什么样？</p>
+<p><img src="http://img.lifehelper.top/FuMx8pvzjuA5viUzVUPhXYA5f9Fe" alt="file"></p>
+<p>串行当然很好理解，就是上文说的汽车过桥，依次通过。再来理解并发，区别于并行，并发是指一个处理器同时处理多个任务，而并行是指多个（核）处理器同时处理多个不同的任务。并发不一定同一时间发生，而并行，指的是同一时间。</p>
+<h3 id="具有相同表达式的定时任务，他们的执行顺序如何？"><a href="#具有相同表达式的定时任务，他们的执行顺序如何？" class="headerlink" title="具有相同表达式的定时任务，他们的执行顺序如何？"></a>具有相同表达式的定时任务，他们的执行顺序如何？</h3><p>从上面的实验同样能知道，具有相同表达式的定时任务，还是和调度有关，如果是默认的线程池，那么会串行执行，首先获取到cpu时间片的先执行。在多线程情况下，具体的先后执行顺序和线程池线程数和所用线程池所用队列等等因素有关。</p>
+<h3 id="Spring-Task和linux-crontab的cron语法区别？"><a href="#Spring-Task和linux-crontab的cron语法区别？" class="headerlink" title="Spring Task和linux crontab的cron语法区别？"></a>Spring Task和linux crontab的cron语法区别？</h3><p>两者的 cron 表达式其实很相似，需要注意的是 linux 的contab 只为我们提供了最小颗粒度为分钟级的任务，而java中最小的粒度是从秒开始的。具体细节如下图：</p>
+<p><img src="http://img.lifehelper.top/FvZtqSFZ3QEyNmQbnyWN6Fb23TPx" alt="file"></p>
+<h3 id="在cron语法中容易犯的错误"><a href="#在cron语法中容易犯的错误" class="headerlink" title="在cron语法中容易犯的错误"></a>在cron语法中容易犯的错误</h3><p>以spring 中的task为例，cron 表达式中 “/“ 代表每的意思，“*/10”表示每10个单位。</p>
+<p>在cron 语法 中很多人会犯错误。比如要求写出每十分钟定时执行的 cron 语句，可能会有以下版本的出现：</p>
+<p><img src="http://img.lifehelper.top/FghyvOgWy05NBvs2po0tjRNlbM7v" alt="file"></p>
+<p>所以当我们写完cron 表达式的时候，可以适当的调低执行间隔时间来测试，或是通过一些在线的网站来检测你的cron脚本是否正确。</p>
+<h3 id="Async异步注解原理及作用"><a href="#Async异步注解原理及作用" class="headerlink" title="@Async异步注解原理及作用"></a>@Async异步注解原理及作用</h3><p>Spring task中 和异步相关的注解有两个 ， 一个是 @EnableAsync ，另一个就是 @Async 。<br><img src="http://img.lifehelper.top/FqPfzHwH5MircEBP9QK3K5Rmf-4S" alt="file"></p>
+<p>首先我们单纯的在方法上引入 @Async 异步注解，并且打印当前线程的名称，实验后发现，方法仍然是由一个线程来同步执行的。</p>
+<p>和@schedule 类似 还是通过@Enable开头的注解来控制执行的。我们在启动类上加入@EnableAsync  后再观察输出内容。</p>
+<p><img src="http://img.lifehelper.top/FqfOjuVf7yQGlADcKlgKbTrUdKxV" alt="file"></p>
+<p>可以发现，默认情况下，其内部是使用的名为SimpleAsyncTaskExecutor的线程池来执行任务，而且每一次任务调度，都会新建一个线程。</p>
+<p>使用@EnableAsync注解开启了Spring的异步功能，Spring会按照如下的方式查找相应的线程池用于执行异步方法：<br>查找实现了TaskExecutor接口的Bean实例。</p>
+<p>如果上面没有找到，则查找名称为taskExecutor并且实现了Executor接口的Bean实例。</p>
+<p>如果还是没有找到，则使用SimpleAsyncTaskExecutor，该实现每次都会创建一个新的线程执行任务。</p>
+<h3 id="并发执行任务如何配置？"><a href="#并发执行任务如何配置？" class="headerlink" title="并发执行任务如何配置？"></a>并发执行任务如何配置？</h3><p>方式一，我们可以将默认的线程池替换为我们自定义的线程池。通过ScheduleConfig配置文件实现SchedulingConfigurer接口，并重写setSchedulerfang方法。</p>
+<p>可实现AsyncConfigurer接口复写getAsyncExecutor获取异步执行器，getAsyncUncaughtExceptionHandler获取异步未捕获异常处理器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Configurationpublic</span><br><span class="line">class ScheduleConfig implements SchedulingConfigurer &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) &#123;</span><br><span class="line">        taskRegistrar.setScheduler(Executors.newScheduledThreadPool(5));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>方式二：不改变任务调度器默认使用的线程池，而是把当前任务交给一个异步线程池去执行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@Scheduled(fixedRate &#x3D; 1000*10,initialDelay &#x3D; 1000*20)</span><br><span class="line">@Async(&quot;hyqThreadPoolTaskExecutor&quot;)</span><br><span class="line">public void test()&#123;</span><br><span class="line">    System.out.println(Thread.currentThread().getName()+&quot;---&gt;xxxxx---&gt;&quot;+Thread.currentThread().getId());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;自定义线程池</span><br><span class="line">@Bean(name &#x3D; &quot;hyqThreadPoolTaskExecutor&quot;)</span><br><span class="line">public TaskExecutor  getMyThreadPoolTaskExecutor() &#123;</span><br><span class="line">    ThreadPoolTaskExecutor taskExecutor &#x3D; new ThreadPoolTaskExecutor();</span><br><span class="line">    taskExecutor.setCorePoolSize(20);</span><br><span class="line">    taskExecutor.setMaxPoolSize(200);</span><br><span class="line">    taskExecutor.setQueueCapacity(25);</span><br><span class="line">    taskExecutor.setKeepAliveSeconds(200);</span><br><span class="line">    taskExecutor.setThreadNamePrefix(&quot;hyq-threadPool-&quot;);</span><br><span class="line">    taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());</span><br><span class="line">    taskExecutor.setWaitForTasksToCompleteOnShutdown(true);</span><br><span class="line">    taskExecutor.setAwaitTerminationSeconds(60);</span><br><span class="line">    taskExecutor.initialize();</span><br><span class="line">    return taskExecutor;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>如果是定时任务没有生效，需要检查 @EnableScheduling 注解是否加上。<br>如果是异步没有生效，需要检查 @EnableAsync 注解是否加上，并且定义线程池，否则仍然是串行执行的。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>文章介绍了SpringBoot 定时任务的原理， 3.0版本前后的区别，通过单线程任务阻塞实验，探究了延迟队列及串行、并行、并发的概念。对比了linux下的 contab 和spring的cron表达式区别以及常犯的错误。最后通过实验异步注解，两种方式配置线程池，让任务高效运作，希望本文能让你有所收获。</p>
+
+    </div>
+
+    
+    
+    
+      
+<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">
+        -------------本文结束 <i class="fa fa-paw"></i> 感谢您的阅读------------- <br />
+
+        <div style='color:red'>
+        创建了一个java方面的互助群，和其他传统的学习群不同。<br />
+
+        在本群，你可以<br />
+        1）阐述你在开发过程中遇到的问题，群友集思广益，高效解答。<br />
+        2）分享自己学习的一些心得，让后来学习者少踩坑。<br />
+        3）资源共享，无论是好的学习视频还是文档都可以在群内共享。<br />
+        关注后回复问题答案与群友讨论：java中Integer包装类的基本数据类型是？<br />
+        </div>
+        <img width="600px" src="https://sourl.cn/LkG43C" alt="扫码关注，互相帮助" />
+        </div>
+    
+</div>
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    有疑问？加群讨论吧
+  </button>
+  <div id="qr" style="display: none;">
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>侠梦
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.lifehelper.top/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/" title="为什么你的 Spring Task 定时任务没有定时执行？">https://www.lifehelper.top/为什么你的-Spring-Task-定时任务没有定时执行？/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Spring/" rel="tag"># Spring</a>
+              <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag"># 微服务</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/" rel="prev" title="Hbase入门精要">
+      <i class="fa fa-chevron-left"></i> Hbase入门精要
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/%E6%90%9Ejava%E5%BC%80%E5%8F%91-%E7%9C%8B%E6%87%82JVM%E7%9A%84-GC-%E6%97%A5%E5%BF%97%E7%9C%9F%E7%9A%84%E5%BE%88%E9%87%8D%E8%A6%81/" rel="next" title="搞java开发 看懂JVM的 GC 日志真的很重要">
+      搞java开发 看懂JVM的 GC 日志真的很重要 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="SOHUCS"></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SpringBoot-定时任务的原理"><span class="nav-number">2.</span> <span class="nav-text">SpringBoot 定时任务的原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#任务一直阻塞会怎么样？"><span class="nav-number">3.</span> <span class="nav-text">任务一直阻塞会怎么样？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多个定时任务的执行"><span class="nav-number">4.</span> <span class="nav-text">多个定时任务的执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#具有相同表达式的定时任务，他们的执行顺序如何？"><span class="nav-number">5.</span> <span class="nav-text">具有相同表达式的定时任务，他们的执行顺序如何？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-Task和linux-crontab的cron语法区别？"><span class="nav-number">6.</span> <span class="nav-text">Spring Task和linux crontab的cron语法区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在cron语法中容易犯的错误"><span class="nav-number">7.</span> <span class="nav-text">在cron语法中容易犯的错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Async异步注解原理及作用"><span class="nav-number">8.</span> <span class="nav-text">@Async异步注解原理及作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#并发执行任务如何配置？"><span class="nav-number">9.</span> <span class="nav-text">并发执行任务如何配置？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他问题"><span class="nav-number">10.</span> <span class="nav-text">其他问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">11.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="侠梦"
+      src="/images/xiameng.jpg">
+  <p class="site-author-name" itemprop="name">侠梦</p>
+  <div class="site-description" itemprop="description">记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Hyq0823" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Hyq0823" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:82347749@qq.com" title="E-Mail → mailto:82347749@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5026953203" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;5026953203" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/u012811805" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;u012811805" rel="noopener" target="_blank"><i class="fa fa-fw fa-csdn"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/huang-quan-3-41" title="zhihu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;huang-quan-3-41" rel="noopener" target="_blank"><i class="fa fa-fw fa-zhihu"></i>zhihu</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://lzhdeblog.cn/" title="http:&#x2F;&#x2F;lzhdeblog.cn" rel="noopener" target="_blank">卓丶恒</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">京ICP备19051662号 </a>
+      <img src="https://static.dy208.cn/o_1dfilp8ruo521thr1hvf18ji17soa.png" style="display: inline-block;">
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">侠梦</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">52k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">47 分钟</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    url = encodeURI(url);
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.getAttribute('id'));
+      var title = visitors.getAttribute('data-flag-title');
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title: title, url: url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.getAttribute('id'));
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=SeOVHDar91vu7xVwMnuIdNHP-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method: method,
+          headers: {
+            'X-LC-Id'     : 'SeOVHDar91vu7xVwMnuIdNHP-gzGzoHsz',
+            'X-LC-Key'    : '1loCMEyjQCCIrLaDO02MaFF4',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script>
+  NexT.utils.loadComments(document.querySelector('#SOHUCS'), () => {
+    var appid = 'cyuHAs3xL';
+    var conf = 'c5eb46fa96e7055de848fc1bfded295d';
+    var width = window.innerWidth || document.documentElement.clientWidth;
+    if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+    } else {
+      var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+    }
+  });
+  </script>
+  <script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+</body>
+</html>

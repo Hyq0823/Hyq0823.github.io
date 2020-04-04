@@ -20,26 +20,29 @@
     var CONFIG = {"hostname":"www.lifehelper.top","root":"/","scheme":"Gemini","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#468eff","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":false,"nav":null,"activeClass":"changyan"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="一句话理解Spark是什么spark是一个基于内存计算的框架，是一种通用的大数据快速处理引擎。 spark的版本支持情况本文基于Spark2.3.1做阐述说明。">
+  <meta name="description" content="前言HBase，是基于Google Bigtable实现的开源、分布式、可伸缩的列式存储数据库。 诞生于Hadoop，也是Hadoop生态的重要一环，如今作为一个Apache顶级项目，早已经不能将其仅仅看作Hadoop的一部分，基于Storm，Spark等框架的数据处理方案中，都有它的身影，可以说它已经成为大数据工具箱中非常重要的一种数据存储工具，也因此必然会被很纳入很多人学习计划。 对于任何一个">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spark从入门到成神之路-Spark理论开山篇（一）">
-<meta property="og:url" content="https://www.lifehelper.top/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
+<meta property="og:title" content="Hbase入门精要">
+<meta property="og:url" content="https://www.lifehelper.top/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/index.html">
 <meta property="og:site_name" content="侠梦的开发笔记">
-<meta property="og:description" content="一句话理解Spark是什么spark是一个基于内存计算的框架，是一种通用的大数据快速处理引擎。 spark的版本支持情况本文基于Spark2.3.1做阐述说明。">
+<meta property="og:description" content="前言HBase，是基于Google Bigtable实现的开源、分布式、可伸缩的列式存储数据库。 诞生于Hadoop，也是Hadoop生态的重要一环，如今作为一个Apache顶级项目，早已经不能将其仅仅看作Hadoop的一部分，基于Storm，Spark等框架的数据处理方案中，都有它的身影，可以说它已经成为大数据工具箱中非常重要的一种数据存储工具，也因此必然会被很纳入很多人学习计划。 对于任何一个">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://img.lifehelper.top/FhJjKwYnJCisDAggqDj9tPfQU9ra">
-<meta property="og:image" content="http://img.lifehelper.top/Fs_B_FpaNeZYOYUPkPx9klAsFBIG">
-<meta property="og:image" content="http://img.lifehelper.top/FvdXEEiK_FZ0ePd1b5FZWcU9hBI0">
-<meta property="og:image" content="http://img.lifehelper.top/FrODUmx3lJJQtubpiHjoA_39wvXf">
-<meta property="og:image" content="http://img.lifehelper.top/FlhG1XofOcuN4MgN5Wz8vKXNHcoQ">
-<meta property="article:published_time" content="2020-02-28T14:53:54.000Z">
-<meta property="article:modified_time" content="2020-03-02T10:37:09.489Z">
+<meta property="og:image" content="http://img.lifehelper.top/Fng-1KeVPtVXCyrv6a5hcw7GvedB">
+<meta property="og:image" content="http://img.lifehelper.top/FhFiAcm0KfhLN9nPIqF_EqI3iF40">
+<meta property="og:image" content="http://img.lifehelper.top/FtBstYIKOSN379vf-drPvdHALRPa">
+<meta property="og:image" content="http://img.lifehelper.top/FsuuH9dC4qim2uMsixDPvuIZU9le">
+<meta property="og:image" content="http://img.lifehelper.top/FkXAV7x0SU-_W_-vWttYNTv4r0R4">
+<meta property="og:image" content="http://img.lifehelper.top/FuDfN3tAWCIhuTWtQltTZvd36npM">
+<meta property="og:image" content="http://img.lifehelper.top/FjmPQForvWnzoucaqXSHLh7G_sSb">
+<meta property="article:published_time" content="2020-04-04T04:48:51.000Z">
+<meta property="article:modified_time" content="2020-04-04T04:52:40.193Z">
 <meta property="article:author" content="侠梦">
-<meta property="article:tag" content="Spark">
+<meta property="article:tag" content="Hbase">
+<meta property="article:tag" content="大数据">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://img.lifehelper.top/FhJjKwYnJCisDAggqDj9tPfQU9ra">
+<meta name="twitter:image" content="http://img.lifehelper.top/Fng-1KeVPtVXCyrv6a5hcw7GvedB">
 
-<link rel="canonical" href="https://www.lifehelper.top/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/">
+<link rel="canonical" href="https://www.lifehelper.top/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/">
 
 
 <script id="page-configurations">
@@ -51,7 +54,7 @@
   };
 </script>
 
-  <title>Spark从入门到成神之路-Spark理论开山篇（一） | 侠梦的开发笔记</title>
+  <title>Hbase入门精要 | 侠梦的开发笔记</title>
   
 
 
@@ -144,17 +147,17 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">8</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">17</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">7</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">11</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">10</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">16</span></a>
 
   </li>
   </ul>
@@ -184,7 +187,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/xiameng.jpg">
@@ -197,7 +200,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          Spark从入门到成神之路-Spark理论开山篇（一）
+          Hbase入门精要
         </h2>
 
         <div class="post-meta">
@@ -206,30 +209,24 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2020-02-28 22:53:54" itemprop="dateCreated datePublished" datetime="2020-02-28T22:53:54+08:00">2020-02-28</time>
+              <time title="创建时间：2020-04-04 12:48:51 / 修改时间：12:52:40" itemprop="dateCreated datePublished" datetime="2020-04-04T12:48:51+08:00">2020-04-04</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-02 18:37:09" itemprop="dateModified" datetime="2020-03-02T18:37:09+08:00">2020-03-02</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">Spark从入门到成神之路</span>
+                  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE%E4%B9%8BHbase/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据之Hbase</span>
                   </a>
                 </span>
             </span>
 
           
-            <span id="/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="Spark从入门到成神之路-Spark理论开山篇（一）" title="阅读次数">
+            <span id="/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/" class="post-meta-item leancloud_visitors" data-flag-title="Hbase入门精要" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -252,8 +249,8 @@
       <span class="post-meta-item-text">Changyan：</span>
     
     
-      <a title="changyan" href="/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
-        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="Spark从入门到成神之路-Spark理论开山篇（一）/" itemprop="commentCount"></span>
+      <a title="changyan" href="/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/#SOHUCS" itemprop="discussionUrl">
+        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="Hbase入门精要/" itemprop="commentCount"></span>
       </a>
     
   </span>
@@ -264,14 +261,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.8k</span>
+              <span>3.4k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
+              <span>3 分钟</span>
             </span>
 
         </div>
@@ -283,88 +280,52 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="一句话理解Spark是什么"><a href="#一句话理解Spark是什么" class="headerlink" title="一句话理解Spark是什么"></a>一句话理解Spark是什么</h4><p>spark是一个基于内存计算的框架，是一种通用的大数据快速处理引擎。</p>
-<h4 id="spark的版本支持情况"><a href="#spark的版本支持情况" class="headerlink" title="spark的版本支持情况"></a>spark的版本支持情况</h4><p>本文基于Spark2.3.1做阐述说明。</p>
-<p><img src="http://img.lifehelper.top/FhJjKwYnJCisDAggqDj9tPfQU9ra" alt="file"></p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>HBase，是基于Google Bigtable实现的开源、分布式、可伸缩的列式存储数据库。</p>
+<p>诞生于Hadoop，也是Hadoop生态的重要一环，如今作为一个Apache顶级项目，早已经不能将其仅仅看作Hadoop的一部分，基于Storm，Spark等框架的数据处理方案中，都有它的身影，可以说它已经成为大数据工具箱中非常重要的一种数据存储工具，也因此必然会被很纳入很多人学习计划。</p>
+<p>对于任何一个新技术的介绍，我认为一种有效的学习方式是：对其有简要认知后，通过Quick Start式的使用，获得直观的感知，消除距离感，然后再带着使用过程中的疑问去了解其背后的真相，最后支撑我们将其应用到实际工程。</p>
 <a id="more"></a> 
 
-
-
-<h4 id="spark的特点"><a href="#spark的特点" class="headerlink" title="spark的特点"></a>spark的特点</h4><p><img src="http://img.lifehelper.top/Fs_B_FpaNeZYOYUPkPx9klAsFBIG" alt="file"></p>
-<ul>
-<li>内存计算运行速度快</li>
-</ul>
-<p>当然说它快，总要有个对比项，这里是基于和Hadoop的MapReduce来对比，由Spark是基于内存，所以它的计算速度可以达到MapReduce\Hive的数倍甚至数十倍高。</p>
-<ul>
-<li>灵活性</li>
-</ul>
-<p>易用性强：提供了高阶的基于Java、Scala、Python和R语言的api，并且对图形化的执行引擎有所支持，其处理能力支持涵盖包括：Spark Sql，MLib和GrafphX、Spark Streaming等。</p>
-<ul>
-<li>实时数据处理</li>
-</ul>
-<p>实时处理- Spark能够处理实时流数据。与只处理存储数据的MapReduce不同，Spark能够处理实时数据，所以能够产生即时结果。</p>
-<ul>
-<li>更好的数据分析</li>
-</ul>
-<p>与MapReduce中的包括Map和Reduce函数相比，Spark包含的远不止这些。Apache Spark由一组丰富的SQL查询、机器学习算法、复杂分析等组成。有了所有这些功能，在Spark的帮助下，可以更好地执行分析。</p>
-<ul>
-<li>Spark SQL支持</li>
-</ul>
-<p>Spark SQL是Apache Spark处理结构化数据的模块。Spark SQL提供的接口为Spark提供了有关数据结构和正在执行的计算的更多信息。<br>结构化数据的处理。</p>
-<ul>
-<li>机器学习库</li>
-</ul>
-<p>Apache Spark配备了一个丰富的机器学习库库。这个库包含了大量的机器学习算法： 分类、回归、聚类和协同过滤。它还包括用于构造、评估和调优ML管道的其他工具。所有这些功能都有助于在集群中扩展。</p>
-<ul>
-<li>图形数据库GraphX</li>
-</ul>
-<p>Spark还附带一个名为GraphX的库，用于操作图形数据库和执行计算。GraphX将ETL(提取、转换和加载)过程、探索性分析和迭代图计算统一到一个系统中。</p>
-<h4 id="MapReduce及其不足"><a href="#MapReduce及其不足" class="headerlink" title="MapReduce及其不足"></a>MapReduce及其不足</h4><p>在出现Spark之前，MapReduce很流行，它是一个弹性的分布式处理框架。</p>
-<p><img src="http://img.lifehelper.top/FvdXEEiK_FZ0ePd1b5FZWcU9hBI0" alt="file"></p>
-<p>包含：</p>
-<ul>
-<li>分布式数据</li>
-</ul>
-<p>当数据上传到集群中后，它会被分割成数据块，分布在各个节点中，并在集群中复制。</p>
-<ul>
-<li>分布式计算</li>
-</ul>
-<p>通过指定一个map函数，来生成键值的映射，同样指定一个reduce函数，来合并在中间过程操作中生成的一系列中间值。这些操作在集群中会自动的并行化。</p>
-<p>数据的映射过程，在每个数据节点上执行。数据源就是节点上切分到的分布式的数据文件。</p>
-<p>简单了解MapReduce的特点后，我们来看看他有什么不足之处。</p>
-<p>首先，MapReduce只提供两步操作，既是Map和reduce操作。</p>
-<p>在mapreduce中数据是键值对的形式存在，在spark中是RDD数据结构存在。</p>
-<h4 id="RDD是什么"><a href="#RDD是什么" class="headerlink" title="RDD是什么"></a>RDD是什么</h4><p>RDD（Resilient Distributed Datasets ）被称为弹性分布式数据集。</p>
-<p>具有如下特点：</p>
-<ul>
-<li>分布式</li>
-</ul>
-<p>数据是分布在各个节点上的，所有的计算动作都是并行进行的。</p>
-<ul>
-<li>迭代式的计算。</li>
-</ul>
-<p>这也是刚才提到的，MapReduce只有两步操作，而sprak可以进行很多步计算。<br>spark在处理完一个阶段后，可以继续处理多个阶段直至结束。</p>
-<ul>
-<li>容错</li>
-</ul>
-<p>RDD一旦被创建就不能够修改，并且是容错的。为什么说是弹性的呢？</p>
-<p><img src="http://img.lifehelper.top/FrODUmx3lJJQtubpiHjoA_39wvXf" alt="file"></p>
-<p>RDD的数据是被分区的，比如有10万条数据，那可能节点1有2万条，节点2有2万条，等等。每个分区数据默认都是放在内存中的，但是当节点的内存不足以支撑这么多数据量时，spark会将数据放一部分到磁盘中，这些操作都是对用户透明的。</p>
-<p>parttion分区可以提高并行度，默认情况下Spark会自动决定一个RDD必须划分的分区数量，但是也可以在创建RDD时指定分区的数量。</p>
-<p>那节点宕机怎么办呢？</p>
-<p>节点上的rdd分区数据丢失，则他会从数据来源获取到数据后重新计算。</p>
-<h4 id="Spark开发之前"><a href="#Spark开发之前" class="headerlink" title="Spark开发之前"></a>Spark开发之前</h4><p>其实前面介绍的理论，都是为了最后引出RDD。所有的操作核心都和RDD有着密切的关系。</p>
-<p>开发伊始，就需要定义第一个rdd的来源，可能是从hdfs、kafka或是文件甚至集合。</p>
-<p>第二步，需要定义定义对rdd的操作（称为算子），<br>map/flatmap等，比mapreduce提供的map和reduce强悍太多太多了。</p>
-<p><img src="http://img.lifehelper.top/FlhG1XofOcuN4MgN5Wz8vKXNHcoQ" alt="file"></p>
-<p>第一次计算完后，数据可能会到另外的节点上，变成一个新的rdd.<br>再次反复操作。</p>
-<p>通过使用RDD 中的有向无环图(DAG)实现容错。</p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>本篇文章介绍了spark的基本概念和相关核心知识点的预梳理，主要包括：</p>
-<ul>
-<li>spark的特点。</li>
-<li>spark和mapreduce的区别。</li>
-<li>RDD的基本概念和及其转换。</li>
-</ul>
+<h3 id="从关系型数据库模型来演变理解Hbase"><a href="#从关系型数据库模型来演变理解Hbase" class="headerlink" title="从关系型数据库模型来演变理解Hbase"></a>从关系型数据库模型来演变理解Hbase</h3><p>在说Hase是个啥家伙之前，首先我们来看看两个概念，面向行存储和面向列存储。</p>
+<p>面向行存储，我相信大伙儿应该都清楚，我们熟悉的RDBMS就是此种类型的，面向行存储的数据库主要适合于事务性要求严格场合，或者说面向行存储的存储系统适合OLTP，但是根据CAP理论，传统的RDBMS，为了实现强一致性，通过严格的ACID事务来进行同步，这就造成了系统的可用性和伸缩性方面大大折扣，而目前的很多NoSQL产品，包括Hbase，它们都是一种最终一致性的系统，它们为了高的可用性牺牲了一部分的一致性。好像，我上面说了面向列存储，那么到底什么是面向列存储呢？</p>
+<p>相信各位对Mysql的概念比较熟，那我们从Mysql入手来介绍。</p>
+<p>假如系统中有一个User表，如果按照传统的RDBMS的话，User表中的列是固定的，比如schema 定义了name,age,sex等属性。</p>
+<p><img src="http://img.lifehelper.top/Fng-1KeVPtVXCyrv6a5hcw7GvedB" alt="file"></p>
+<p>这种关系型数据结构的存储相信已经是非常熟悉了。但在Hbse，或是说在Nosql里面，却不是这样了。</p>
+<p><img src="http://img.lifehelper.top/FhFiAcm0KfhLN9nPIqF_EqI3iF40" alt="file"></p>
+<p>新技术的学习，避免不了又是学习很多的术语，在解释之前，我们先说说在Hbase里面的术语。</p>
+<p>表(table)：一张表中包含若干行。</p>
+<p>行(row)：一行包括一个行键(row key)和若干列族，一张表中的行按照行键排序，并用行键作为索引。图中展示了一个行键为1、2、3的行。<br>列族(column family)：每个列族包含若干个列，列族需要在建表时预定义，运行期间可以动态加入新的列。图中的”private”、”public”就是row1行中的两个列族。</p>
+<p>在物理层面，HBase的数据存储是在列族这一层级进行组织，每个列族单独存储。所以一般我们在开发中，指定列族名就用一个字母，并且不会超过两个。</p>
+<p>列(column)：每个列都归属于某个列族，以列族名作为前缀，通常使用列族名：修饰符的形式来标识一个列，可以将其中的修饰符部分看作列名。图中的”private:name”和”priavte:phone”即是列族private中的成员。</p>
+<p><img src="http://img.lifehelper.top/FtBstYIKOSN379vf-drPvdHALRPa" alt="file"></p>
+<p>单元格(cell)：存储的每一个值存放在一个单元格中，由[行，列，版本号]来唯一指向一个单元格。</p>
+<p>版本(version)：版本号默认是时间戳形式，同一列中可能包含若干单元格，这些单元格由版本号唯一区分，根据版本号降序排列，HBase查询时，如果不指定版本号，默认返回最新的值。版本是HBase多维特性的表现。</p>
+<p>HBase 与Mysql关系型数据库非常不一样。HBase 是一个稀疏的、分布式、持久、多维、排序的映射，它以行键（row key），列键（column key）和时间戳（timestamp）为索引。你可能会听到人们称呼它为 key-value 存储的、面向列族的数据库，或者是存储不同版本的映射的映射的数据库。</p>
+<h3 id="理解Column-Family和RegionServer"><a href="#理解Column-Family和RegionServer" class="headerlink" title="理解Column Family和RegionServer"></a>理解Column Family和RegionServer</h3><p><img src="http://img.lifehelper.top/FsuuH9dC4qim2uMsixDPvuIZU9le" alt="file"></p>
+<p>从关系型数据库模型来辅助理解，好像是一张表，被两个列族垂直纵向切割了。每一个切割的单元，我们就把它称之为一个列族。</p>
+<p>如果纵向的切割，称之为列族，那横向的切割是什么？</p>
+<p><img src="http://img.lifehelper.top/FkXAV7x0SU-_W_-vWttYNTv4r0R4" alt="file"></p>
+<p>对，没错，就是RegionServer，除了RegionServer，hbase里面还有其他的组件。<br>先从粗粒度对HBase的架构进行简单了解吧：<br>HMaster：主要负责监控集群、管理RegionServers的负责均衡等，可以用主-备形式部署多个Master。</p>
+<p>HRegionServers：负责响应用户的I/O操作请求，客户端对HBase读写数据是与RegionServer交互。</p>
+<p>Zookeeper：负责选举Master的主节点；服务注册；保存RegionServers的状态等。可以使用系统内建的zookeeper，也可以使用独立的zookeeper，只需要在配置文件中调整即可。</p>
+<p>HDFS：真正的数据持久层，并非必须是HDFS文件系统，但搭配HDFS是最佳选择，也是目前应用最广泛的选择。</p>
+<h3 id="整体的理解Hbase架构"><a href="#整体的理解Hbase架构" class="headerlink" title="整体的理解Hbase架构"></a>整体的理解Hbase架构</h3><p><img src="http://img.lifehelper.top/FuDfN3tAWCIhuTWtQltTZvd36npM" alt="file"></p>
+<p>相关组件的介绍如下：<br>Client</p>
+<p>包含访问HBase的接口并维护cache来加快对HBase的访问<br>Zookeeper</p>
+<p>保证任何时候，集群中只有一个master<br>存贮所有Region的寻址入口。<br>实时监控Region server的上线和下线信息。并实时通知Master<br>存储HBase的schema和table元数据</p>
+<p>Master<br>为Region server分配region<br>负责Region server的负载均衡<br>发现失效的Region server并重新分配其上的region<br>管理用户对table的增删改操作</p>
+<p>RegionServer</p>
+<p>Region server维护region，处理对这些region的IO请求<br>Region server负责切分在运行过程中变得过大的region　</p>
+<p>HLog(WAL log)：</p>
+<p>HLog文件就是一个普通的Hadoop Sequence File，Sequence File 的Key是HLogKey对象，HLogKey中记录了写入数据的归属信息，除了table和 region名字外，同时还包括sequence number和timestamp，timestamp是” 写入时间”，sequence number的起始值为0，或者是最近一次存入文件系 统中sequence number。<br>HLog SequeceFile的Value是HBase的KeyValue对象，即对应HFile中的 KeyValue</p>
+<p>Region</p>
+<p>HBase自动把表水平划分成多个区域(region)，每个region会保存一个表里面某段连续的数据；每个表一开始只有一个region，随着数据不断插入表，region不断增大，当增大到一个阀值的时候，region就会等分会 两个新的region（裂变）；<br>当table中的行不断增多，就会有越来越多的region。这样一张完整的表 被保存在多个Regionserver上。</p>
+<p>Memstore 与 storefile</p>
+<p>一个region由多个store组成，一个store对应一个CF（列族）<br>store包括位于内存中的memstore和位于磁盘的storefile写操作先写入memstore，当memstore中的数据达到某个阈值，hregionserver会启动flashcache进程写入storefile，每次写入形成单独的一个storefile<br>当storefile文件的数量增长到一定阈值后，系统会进行合并（minor、 major compaction），在合并过程中会进行版本合并和删除工作 （majar），形成更大的storefile。<br>当一个region所有storefile的大小和超过一定阈值后，会把当前的region分割为两个，并由hmaster分配到相应的regionserver服务器，实现负载均衡。</p>
+<p>客户端检索数据，先在memstore找，找不到再找storefile<br>HRegion是HBase中分布式存储和负载均衡的最小单元。最小单元就表示不同的HRegion可以分布在不同的HRegion server上。<br>HRegion由一个或者多个Store组成，每个store保存一个columns family。<br>每个Strore又由一个memStore和0至多个StoreFile组成。</p>
+<p>归纳总结如下图：</p>
+<p><img src="http://img.lifehelper.top/FjmPQForvWnzoucaqXSHLh7G_sSb" alt="file"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文从关系型数据库和Nosql数据库进行对比，介绍了Hbase的基本组成部分。从关系型数据库模型来演变理解Hbase。从整体上理解Hbase的架构以及其内部各个核心组件的原理和作用。</p>
 
     </div>
 
@@ -372,12 +333,6 @@
     
     
       
-  <div class="popular-posts-header">相关文章</div>
-  <ul class="popular-posts">
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\从Spark-WordCount程序认识Spark架构（二）\" rel="bookmark">从Spark WordCount程序认识Spark架构（二）</a></div>
-    </li>
-  </ul>
 <div>
     
         <div style="text-align:center;color: #ccc;font-size:14px;">
@@ -415,7 +370,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://www.lifehelper.top/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/" title="Spark从入门到成神之路-Spark理论开山篇（一）">https://www.lifehelper.top/Spark从入门到成神之路-Spark理论开山篇（一）/</a>
+    <a href="https://www.lifehelper.top/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/" title="Hbase入门精要">https://www.lifehelper.top/Hbase入门精要/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -426,7 +381,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Spark/" rel="tag"># Spark</a>
+              <a href="/tags/Hbase/" rel="tag"># Hbase</a>
+              <a href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/" rel="tag"># 大数据</a>
           </div>
 
         
@@ -435,12 +391,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8BCountDownLatch%E7%9A%84%E7%94%A8%E6%B3%95%E5%8F%8A%E5%8E%9F%E7%90%86/" rel="prev" title="多线程之CountDownLatch的用法及原理">
-      <i class="fa fa-chevron-left"></i> 多线程之CountDownLatch的用法及原理
+    <a href="/%E4%BD%BF%E7%94%A8maven%E6%9E%84%E5%BB%BA%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%9A%84%E5%AE%9E%E8%B7%B5%E5%BF%83%E5%BE%97/" rel="prev" title="使用maven构建的工程的实践心得">
+      <i class="fa fa-chevron-left"></i> 使用maven构建的工程的实践心得
     </a></div>
       <div class="post-nav-item">
-    <a href="/Spark%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8CHeap%20size%E4%B8%8D%E8%B6%B3%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" rel="next" title="Spark本地运行Heap size不足解决方案">
-      Spark本地运行Heap size不足解决方案 <i class="fa fa-chevron-right"></i>
+    <a href="/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/" rel="next" title="为什么你的 Spring Task 定时任务没有定时执行？">
+      为什么你的 Spring Task 定时任务没有定时执行？ <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -506,7 +462,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一句话理解Spark是什么"><span class="nav-number">1.</span> <span class="nav-text">一句话理解Spark是什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#spark的版本支持情况"><span class="nav-number">2.</span> <span class="nav-text">spark的版本支持情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#spark的特点"><span class="nav-number">3.</span> <span class="nav-text">spark的特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MapReduce及其不足"><span class="nav-number">4.</span> <span class="nav-text">MapReduce及其不足</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RDD是什么"><span class="nav-number">5.</span> <span class="nav-text">RDD是什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spark开发之前"><span class="nav-number">6.</span> <span class="nav-text">Spark开发之前</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#从关系型数据库模型来演变理解Hbase"><span class="nav-number">2.</span> <span class="nav-text">从关系型数据库模型来演变理解Hbase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#理解Column-Family和RegionServer"><span class="nav-number">3.</span> <span class="nav-text">理解Column Family和RegionServer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#整体的理解Hbase架构"><span class="nav-number">4.</span> <span class="nav-text">整体的理解Hbase架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -522,20 +478,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -604,13 +560,13 @@
       <i class="fa fa-area-chart"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">29k</span>
+    <span title="站点总字数">52k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">26 分钟</span>
+    <span title="站点阅读时长">47 分钟</span>
 </div>
 
         

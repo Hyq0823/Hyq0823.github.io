@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#468eff">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#468eff">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.lifehelper.top","root":"/","scheme":"Gemini","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#468eff","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":false,"nav":null,"activeClass":"changyan"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言首先介绍一下Keepalived，它是一个高性能的服务器高可用或热备解决方案，起初是专为LVS负载均衡软件设计的，Keepalived主要来防止服务器单点故障的发生问题，可以通过其与Nginx的配合实现web服务端的高可用。 Keepalived以VRRP协议为实现基础，VRRP是Virtual  Router  Redundancy Protocol（虚拟路由冗余协议）的缩写，VRRP协议将">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx双机主备（Keepalived实现）">
+<meta property="og:url" content="https://www.lifehelper.top/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/index.html">
+<meta property="og:site_name" content="侠梦的开发笔记">
+<meta property="og:description" content="前言首先介绍一下Keepalived，它是一个高性能的服务器高可用或热备解决方案，起初是专为LVS负载均衡软件设计的，Keepalived主要来防止服务器单点故障的发生问题，可以通过其与Nginx的配合实现web服务端的高可用。 Keepalived以VRRP协议为实现基础，VRRP是Virtual  Router  Redundancy Protocol（虚拟路由冗余协议）的缩写，VRRP协议将">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://img.lifehelper.top/Fok7y6XcZWSuDuyYiocy-VaaT-n8">
+<meta property="og:image" content="http://img.lifehelper.top/FjDMly-XfTQFGpqd6m5fg_YOCbEZ">
+<meta property="og:image" content="http://img.lifehelper.top/Fh8PsNZqQ4qIOiToKucr3KYNeWTK">
+<meta property="og:image" content="http://img.lifehelper.top/FuIs_lEXFqOfXUcaTOr8fcgRvpPS">
+<meta property="og:image" content="http://img.lifehelper.top/FsVBBFb4ufE3iBV57gxnz1dzHcoK">
+<meta property="og:image" content="http://img.lifehelper.top/FmNdICa8YLhEPNGEfIvj53IIMPWX">
+<meta property="og:image" content="http://img.lifehelper.top/FtAi9b-VZAms750FlZFV2Ehe6Fap">
+<meta property="og:image" content="http://img.lifehelper.top/Fh73Gm2MPS-VZz2nJUbwjwGF278G">
+<meta property="og:image" content="http://img.lifehelper.top/Fj1MkcP9273QOyGvsuPVV1Qnho2J">
+<meta property="og:image" content="http://img.lifehelper.top/Fru7sYWY3nKC7_qOhqTREZfRfteD">
+<meta property="article:published_time" content="2020-04-04T04:55:35.000Z">
+<meta property="article:modified_time" content="2020-04-04T04:56:11.703Z">
+<meta property="article:author" content="侠梦">
+<meta property="article:tag" content="Nginx">
+<meta property="article:tag" content="KeepAlived">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://img.lifehelper.top/Fok7y6XcZWSuDuyYiocy-VaaT-n8">
+
+<link rel="canonical" href="https://www.lifehelper.top/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Nginx双机主备（Keepalived实现） | 侠梦的开发笔记</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?41ade542312b97d643a8df3f7f53917e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  <script>
+    !function(e,t,n,g,i){e[i]=e[i]||function(){(e[i].q=e[i].q||[]).push(arguments)},n=t.createElement("script"),tag=t.getElementsByTagName("script")[0],n.async=1,n.src=('https:'==document.location.protocol?'https://':'http://')+g,tag.parentNode.insertBefore(n,tag)}(window,document,"script","assets.growingio.com/2.1/gio.js","gio");
+    gio('init', 'ad858f46b1a00497', {});
+    gio('send');
+  </script>
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">侠梦的开发笔记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">自助者,天助之</h1>
+      
+  </div>
+
+  <div class="site-nav-right"></div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">17</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">16</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          Nginx双机主备（Keepalived实现）
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:55:35 / 修改时间：12:56:11" itemprop="dateCreated datePublished" datetime="2020-04-04T12:55:35+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Nginx%E9%AB%98%E5%B9%B6%E5%8F%91%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Nginx高并发系列</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="Nginx双机主备（Keepalived实现）" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
+        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="Nginx双机主备（Keepalived实现）/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>首先介绍一下Keepalived，它是一个高性能的服务器高可用或热备解决方案，起初是专为LVS负载均衡软件设计的，Keepalived主要来防止服务器单点故障的发生问题，可以通过其与Nginx的配合实现web服务端的高可用。</p>
+<p>Keepalived以VRRP协议为实现基础，VRRP是Virtual  Router  Redundancy Protocol（虚拟路由冗余协议）的缩写，VRRP协议将两台或多台路由器设备虚拟成一个设备，对外提供虚拟路由器IP（一个或多个）。</p>
+<p>VRRP出现的目的就是为了解决静态路由的单点故障问题的，它能保证当个别节点宕机时，整个网络可以不间断地运行。</p>
+<p>下面我们介绍一下nginx keepalived高可用方案的部署安装。</p>
+<a id="more"></a> 
+
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>在两台主机上准备如下压缩文件：</p>
+<ul>
+<li>keepalived-2.0.20.tar.gz</li>
+<li>nginx-1.16.1.tar.gz</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>虚拟IP</th>
+<th>真实IP</th>
+<th>nginx端口</th>
+<th>主从</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.124.20</td>
+<td>192.168.124.13</td>
+<td>80</td>
+<td>MASTER</td>
+</tr>
+<tr>
+<td>192.168.124.20</td>
+<td>192.168.124.14</td>
+<td>80</td>
+<td>BACKUP</td>
+</tr>
+</tbody></table>
+<h3 id="安装nginx"><a href="#安装nginx" class="headerlink" title="安装nginx"></a>安装nginx</h3><p><img src="http://img.lifehelper.top/Fok7y6XcZWSuDuyYiocy-VaaT-n8" alt="file"><br>新建一个用户：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">useradd tianyan</span><br></pre></td></tr></table></figure>
+<p>确定安装目录，我这里的安装目录是：/home/tianyan/tianyan_soft/nginx.install。</p>
+<p>在这个目录下分别新建两个目录用于安装nginx和keepalived，解压两个压缩包。</p>
+<p>执行安装命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure --prefix&#x3D;&#x2F;home&#x2F;tianyan&#x2F;tianyan_soft&#x2F;nginx.install \</span><br><span class="line">--sbin-path&#x3D;&#x2F;home&#x2F;tianyan&#x2F;tianyan_soft&#x2F;nginx.install&#x2F;sbin&#x2F;nginx --conf-path&#x3D;&#x2F;home&#x2F;tianyan&#x2F;tianyan_soft&#x2F;nginx.install&#x2F;conf&#x2F;nginx.conf \</span><br><span class="line">--error-log-path&#x3D;&#x2F;home&#x2F;tianyan&#x2F;tianyan_soft&#x2F;nginx.install&#x2F;error.log \</span><br><span class="line">--http-log-path&#x3D;&#x2F;home&#x2F;tianyan&#x2F;tianyan_soft&#x2F;nginx.install&#x2F;access.log \</span><br><span class="line">--pid-path&#x3D;&#x2F;home&#x2F;tianyan&#x2F;tianyan_soft&#x2F;nginx.install&#x2F;nginx.pid \</span><br><span class="line">--lock-path&#x3D;&#x2F;home&#x2F;tianyan&#x2F;tianyan_soft&#x2F;nginx.install&#x2F;nginx.lock \</span><br><span class="line">--user&#x3D;tianyan --group&#x3D;tianyan \</span><br><span class="line">--with-http_stub_status_module \</span><br><span class="line">--with-http_gzip_static_module \</span><br><span class="line">--with-http_ssl_module \</span><br><span class="line">--with-http_realip_module \</span><br><span class="line">--with-threads  \</span><br><span class="line">--with-pcre \</span><br><span class="line">--http-client-body-temp-path&#x3D;&#x2F;home&#x2F;tianyan&#x2F;tianyan_soft&#x2F;nginx.install&#x2F;client&#x2F;  \</span><br><span class="line">--http-proxy-temp-path&#x3D;&#x2F;home&#x2F;tianyan&#x2F;tianyan_soft&#x2F;nginx.install&#x2F;proxy&#x2F; \</span><br><span class="line"> --http-fastcgi-temp-path&#x3D;&#x2F;home&#x2F;tianyan&#x2F;tianyan_soft&#x2F;nginx.install&#x2F;fcgi&#x2F;  \</span><br><span class="line">--http-uwsgi-temp-path&#x3D;&#x2F;home&#x2F;tianyan&#x2F;tianyan_soft&#x2F;nginx.install&#x2F;uwsgi  \</span><br><span class="line">--http-scgi-temp-path&#x3D;&#x2F;home&#x2F;tianyan&#x2F;tianyan_soft&#x2F;nginx.install&#x2F;scgi</span><br></pre></td></tr></table></figure>
+
+
+<p>如果报错，记得安装相关依赖：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install gcc gcc-c++</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx: [emerg] bind() to 0.0.0.0:80 failed (13: Permission denied)。</span><br></pre></td></tr></table></figure>
+
+<p>注：以非root权限启动时，会出现 nginx: [emerg] bind() to 0.0.0.0:80 failed (13: Permission denied) 错误。</p>
+<p>原因：Linux只有root用户可以使用1024一下的端口</p>
+<p>解决办法：</p>
+<ul>
+<li><p>1.按照root权限启动</p>
+</li>
+<li><p>2.将 /usr/local/nginx/conf/nginx.conf 文件中的80端口改为1024以上。</p>
+</li>
+</ul>
+<h3 id="安装keepalived"><a href="#安装keepalived" class="headerlink" title="安装keepalived"></a>安装keepalived</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure --prefix&#x3D;&#x2F;usr&#x2F;local&#x2F;keepalived</span><br></pre></td></tr></table></figure>
+<p>上述命令执行完毕后继续执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>安装完毕后，目录是这个样子：</p>
+<p><img src="http://img.lifehelper.top/FjDMly-XfTQFGpqd6m5fg_YOCbEZ" alt="file"></p>
+<p>将配置文件拷贝到系统对应的目录下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir &#x2F;etc&#x2F;keepalived</span><br><span class="line">cp &#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf &#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf</span><br><span class="line">cp &#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;etc&#x2F;sysconfig&#x2F;keepalived &#x2F;etc&#x2F;sysconfig&#x2F;keepalived</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="编辑-master-节点的-keepalived-conf"><a href="#编辑-master-节点的-keepalived-conf" class="headerlink" title="编辑 master 节点的 keepalived.conf"></a>编辑 master 节点的 keepalived.conf</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf</span><br></pre></td></tr></table></figure>
+
+<p>内容参考如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File for keepalived</span><br><span class="line"></span><br><span class="line">global_defs &#123;</span><br><span class="line">    #一个没重复的名字即可</span><br><span class="line">    router_id hyq_slave</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#ng是否运行</span><br><span class="line">vrrp_script chk_nginx &#123;</span><br><span class="line">        script &quot;&#x2F;etc&#x2F;keepalived&#x2F;nginx_check.sh&quot;</span><br><span class="line">        interval 2</span><br><span class="line">        weight -20</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state BACKUP      #  必填，可以是MASTER或BACKUP</span><br><span class="line"></span><br><span class="line">    interface ens33</span><br><span class="line">    virtual_router_id 101</span><br><span class="line">    priority 90</span><br><span class="line">    advert_int 1</span><br><span class="line"></span><br><span class="line">    # 如果两节点的上联交换机禁用了组播，则采用vrrp单播通告的方式</span><br><span class="line">    # 本机ip</span><br><span class="line">    unicast_src_ip 192.168.124.14</span><br><span class="line">    unicast_peer &#123;</span><br><span class="line">        # 其他机器ip</span><br><span class="line">        192.168.124.13</span><br><span class="line">    &#125;</span><br><span class="line">    # 设置nopreempt防止抢占资源</span><br><span class="line">    nopreempt</span><br><span class="line"></span><br><span class="line">    authentication &#123;</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass 1111</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # 与上方nginx运行状况检测呼应</span><br><span class="line">    track_script &#123;</span><br><span class="line">        chk_nginx</span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        192.168.124.20</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="编辑-slave-节点的-keepalived-conf"><a href="#编辑-slave-节点的-keepalived-conf" class="headerlink" title="编辑 slave 节点的 keepalived.conf"></a>编辑 slave 节点的 keepalived.conf</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File for keepalived</span><br><span class="line"></span><br><span class="line">global_defs &#123;</span><br><span class="line">    #一个没重复的名字即可</span><br><span class="line">    router_id hyq_slave</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#ng是否运行</span><br><span class="line">vrrp_script chk_nginx &#123;</span><br><span class="line">        script &quot;&#x2F;etc&#x2F;keepalived&#x2F;nginx_check.sh&quot;</span><br><span class="line">        interval 2</span><br><span class="line">        weight -20</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state BACKUP      #  必填，可以是MASTER或BACKUP   </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    interface ens33</span><br><span class="line">    virtual_router_id 101</span><br><span class="line">    priority 90</span><br><span class="line">    advert_int 1</span><br><span class="line"></span><br><span class="line">    # 如果两节点的上联交换机禁用了组播，则采用vrrp单播通告的方式</span><br><span class="line">    # 本机ip</span><br><span class="line">    unicast_src_ip 192.168.124.14</span><br><span class="line">    unicast_peer &#123;</span><br><span class="line">        # 其他机器ip</span><br><span class="line">        192.168.124.13</span><br><span class="line">    &#125;</span><br><span class="line">    # 设置nopreempt防止抢占资源</span><br><span class="line">    nopreempt</span><br><span class="line"></span><br><span class="line">    authentication &#123;</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass 1111</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # 与上方nginx运行状况检测呼应</span><br><span class="line">    track_script &#123;</span><br><span class="line">        chk_nginx</span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        192.168.124.20</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="编写nginx-check-sh脚本"><a href="#编写nginx-check-sh脚本" class="headerlink" title="编写nginx_check.sh脚本"></a>编写nginx_check.sh脚本</h4><p>在/etc/keepalived目录下新建nginx_check.sh脚本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">touch nginx_check.sh</span><br></pre></td></tr></table></figure>
+
+<p>编辑其内容为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;bin&#x2F;sh</span><br><span class="line">A&#x3D;&#96;ps -C nginx --no-header |wc -l&#96;</span><br><span class="line">if [ $A -eq 0 ]</span><br><span class="line">then</span><br><span class="line">  &#x2F;usr&#x2F;sbin&#x2F;nginx</span><br><span class="line">  sleep 1</span><br><span class="line">  A2&#x3D;&#96;ps -C nginx --no-header |wc -l&#96;</span><br><span class="line">  if [ $A2 -eq 0 ]</span><br><span class="line">  then</span><br><span class="line">    systemctl stop keepalived</span><br><span class="line">  fi</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+
+<p>含义是：如果 nginx 停止运行，尝试启动，但是如果无法启动，则杀死本机的 keepalived 进程， keepalied将会把虚拟 ip 绑定到 BACKUP 机器上。<br>注意：  /usr/sbin/nginx是nginx的启动命令，如果你安装到其他目录，则相应的替换。</p>
+<h3 id="Keepalived的日志"><a href="#Keepalived的日志" class="headerlink" title="Keepalived的日志"></a>Keepalived的日志</h3><p>Keepalived日志默认位置是在/var/log/messages目录下。我们将其修改一下。</p>
+<p>由于系统是centos7，修改位置为：/lib/systemd/system/keepalived.service</p>
+<p>原内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">EnvironmentFile&#x3D;-&#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;etc&#x2F;sysconfig&#x2F;keepalived</span><br><span class="line">ExecStart&#x3D;&#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;sbin&#x2F;keepalived $KEEPALIVED_OPTIONS</span><br></pre></td></tr></table></figure>
+<p>修改为：</p>
+<p><img src="http://img.lifehelper.top/Fh8PsNZqQ4qIOiToKucr3KYNeWTK" alt="file"></p>
+<p>修改完毕后重新加载service</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload</span><br></pre></td></tr></table></figure>
+
+<p>创建命令软连接：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s &#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;sbin&#x2F;keepalived &#x2F;usr&#x2F;sbin&#x2F;keepalived</span><br></pre></td></tr></table></figure>
+<p>执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">keepalived -D -f &#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf</span><br><span class="line">-D   将日志输出到message日志,默认日志也在message</span><br><span class="line">-f    是指定配置文件</span><br></pre></td></tr></table></figure>
+
+<p>修改/etc/sysconfig/keepalived</p>
+<p>把KEEPALIVED_OPTIONS=”-D” 修改为：KEEPALIVED_OPTIONS=”-D -d -S 0”</p>
+<p><img src="http://img.lifehelper.top/FuIs_lEXFqOfXUcaTOr8fcgRvpPS" alt="file"></p>
+<p>在/etc/rsyslog.conf 末尾添加</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">local0.*                                                &#x2F;var&#x2F;log&#x2F;keepalived.log</span><br></pre></td></tr></table></figure>
+<p><img src="http://img.lifehelper.top/FsVBBFb4ufE3iBV57gxnz1dzHcoK" alt="file"></p>
+<p>最后执行命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service rsyslog restart</span><br></pre></td></tr></table></figure>
+<p>重启keepalived后就可以看到日志在/var/log/keepalived.log下了。</p>
+<h3 id="测试验证VIP"><a href="#测试验证VIP" class="headerlink" title="测试验证VIP"></a>测试验证VIP</h3><p>当keepalived和nginx都启动后，我们来测试一下。</p>
+<p>首先在浏览器里面访问三个地址</p>
+<ul>
+<li><a href="http://192.168.124.20" target="_blank" rel="noopener">http://192.168.124.20</a>  （vip）</li>
+<li><a href="http://192.168.124.13" target="_blank" rel="noopener">http://192.168.124.13</a>  （master）</li>
+<li><a href="http://192.168.124.14" target="_blank" rel="noopener">http://192.168.124.14</a>   (slave)</li>
+</ul>
+<p>我修改了一下nginx的index.html,可以看到当前vip指向是13的master节点：</p>
+<p><img src="http://img.lifehelper.top/FmNdICa8YLhEPNGEfIvj53IIMPWX" alt="file"></p>
+<p>然后，我们手动停止13上的nginx，再次访问<a href="http://192.168.124.20。" target="_blank" rel="noopener">http://192.168.124.20。</a></p>
+<p><img src="http://img.lifehelper.top/FtAi9b-VZAms750FlZFV2Ehe6Fap" alt="file"></p>
+<p>说明安装成功。</p>
+<p>其中通过ip address命令可以观察到网卡的变化<br><img src="http://img.lifehelper.top/Fh73Gm2MPS-VZz2nJUbwjwGF278G" alt="file"></p>
+<p>实验到这里，我们就完成了keepalived + nginx 主从配置的安装部署了。</p>
+<h3 id="思考：如何开启双主模式"><a href="#思考：如何开启双主模式" class="headerlink" title="思考：如何开启双主模式"></a>思考：如何开启双主模式</h3><p>什么是双主模式？</p>
+<p>分别介绍一下两种配置</p>
+<p>1、Nginx+keepalived 主从配置</p>
+<p><img src="http://img.lifehelper.top/Fj1MkcP9273QOyGvsuPVV1Qnho2J" alt="file"></p>
+<p>这种方案就是上文介绍过的，使用一个vip地址，前端使用2台机器，一台做主，一台做备，但同时只有一台机器工作，另一台备份机器在主机器不出现故障的时候，永远处于浪费状态，仅仅用于灾备，平时都是空闲着的。</p>
+<p>2、Nginx+keepalived 双主配置</p>
+<p>这种方案，使用两个vip地址，前端使用2台机器，互为主备，同时有两台机器工作，当其中一台机器出现故障，两台机器的请求转移到一台机器负担，如下图：</p>
+<p><img src="http://img.lifehelper.top/Fru7sYWY3nKC7_qOhqTREZfRfteD" alt="file"></p>
+
+    </div>
+
+    
+    
+    
+      
+<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">
+        -------------本文结束 <i class="fa fa-paw"></i> 感谢您的阅读------------- <br />
+
+        <div style='color:red'>
+        创建了一个java方面的互助群，和其他传统的学习群不同。<br />
+
+        在本群，你可以<br />
+        1）阐述你在开发过程中遇到的问题，群友集思广益，高效解答。<br />
+        2）分享自己学习的一些心得，让后来学习者少踩坑。<br />
+        3）资源共享，无论是好的学习视频还是文档都可以在群内共享。<br />
+        关注后回复问题答案与群友讨论：java中Integer包装类的基本数据类型是？<br />
+        </div>
+        <img width="600px" src="https://sourl.cn/LkG43C" alt="扫码关注，互相帮助" />
+        </div>
+    
+</div>
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    有疑问？加群讨论吧
+  </button>
+  <div id="qr" style="display: none;">
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>侠梦
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.lifehelper.top/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/" title="Nginx双机主备（Keepalived实现）">https://www.lifehelper.top/Nginx双机主备（Keepalived实现）/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Nginx/" rel="tag"># Nginx</a>
+              <a href="/tags/KeepAlived/" rel="tag"># KeepAlived</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" rel="prev" title="分布式链路追踪工具pinpoint采样率原理分析">
+      <i class="fa fa-chevron-left"></i> 分布式链路追踪工具pinpoint采样率原理分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/java%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B%E4%BA%8C-%E9%99%84MAT%E8%B6%85%E5%85%A8%E6%93%8D%E4%BD%9C%E6%96%87%E6%A1%A3/" rel="next" title="java内存溢出问题分析过程二(附MAT超全操作文档)">
+      java内存溢出问题分析过程二(附MAT超全操作文档) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="SOHUCS"></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#环境准备"><span class="nav-number">2.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装nginx"><span class="nav-number">3.</span> <span class="nav-text">安装nginx</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装keepalived"><span class="nav-number">4.</span> <span class="nav-text">安装keepalived</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#编辑-master-节点的-keepalived-conf"><span class="nav-number">4.1.</span> <span class="nav-text">编辑 master 节点的 keepalived.conf</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编辑-slave-节点的-keepalived-conf"><span class="nav-number">4.2.</span> <span class="nav-text">编辑 slave 节点的 keepalived.conf</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编写nginx-check-sh脚本"><span class="nav-number">4.3.</span> <span class="nav-text">编写nginx_check.sh脚本</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Keepalived的日志"><span class="nav-number">5.</span> <span class="nav-text">Keepalived的日志</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试验证VIP"><span class="nav-number">6.</span> <span class="nav-text">测试验证VIP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#思考：如何开启双主模式"><span class="nav-number">7.</span> <span class="nav-text">思考：如何开启双主模式</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="侠梦"
+      src="/images/xiameng.jpg">
+  <p class="site-author-name" itemprop="name">侠梦</p>
+  <div class="site-description" itemprop="description">记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Hyq0823" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Hyq0823" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:82347749@qq.com" title="E-Mail → mailto:82347749@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5026953203" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;5026953203" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/u012811805" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;u012811805" rel="noopener" target="_blank"><i class="fa fa-fw fa-csdn"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/huang-quan-3-41" title="zhihu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;huang-quan-3-41" rel="noopener" target="_blank"><i class="fa fa-fw fa-zhihu"></i>zhihu</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://lzhdeblog.cn/" title="http:&#x2F;&#x2F;lzhdeblog.cn" rel="noopener" target="_blank">卓丶恒</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">京ICP备19051662号 </a>
+      <img src="https://static.dy208.cn/o_1dfilp8ruo521thr1hvf18ji17soa.png" style="display: inline-block;">
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">侠梦</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">52k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">47 分钟</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    url = encodeURI(url);
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.getAttribute('id'));
+      var title = visitors.getAttribute('data-flag-title');
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title: title, url: url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.getAttribute('id'));
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=SeOVHDar91vu7xVwMnuIdNHP-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method: method,
+          headers: {
+            'X-LC-Id'     : 'SeOVHDar91vu7xVwMnuIdNHP-gzGzoHsz',
+            'X-LC-Key'    : '1loCMEyjQCCIrLaDO02MaFF4',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script>
+  NexT.utils.loadComments(document.querySelector('#SOHUCS'), () => {
+    var appid = 'cyuHAs3xL';
+    var conf = 'c5eb46fa96e7055de848fc1bfded295d';
+    var width = window.innerWidth || document.documentElement.clientWidth;
+    if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+    } else {
+      var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+    }
+  });
+  </script>
+  <script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+</body>
+</html>

@@ -137,17 +137,17 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">8</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">17</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">7</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">11</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">10</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">16</span></a>
 
   </li>
   </ul>
@@ -177,6 +177,948 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E4%B8%80%E6%96%87%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3%E4%BB%80%E4%B9%88%E6%98%AFshallow-heap%E5%8F%8Aretained-heap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/%E4%B8%80%E6%96%87%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3%E4%BB%80%E4%B9%88%E6%98%AFshallow-heap%E5%8F%8Aretained-heap/" class="post-title-link" itemprop="url">一文让你理解什么是shallow heap及retained heap</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:58:06 / 修改时间：12:58:23" itemprop="dateCreated datePublished" datetime="2020-04-04T12:58:06+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM性能分析系列</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/%E4%B8%80%E6%96%87%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3%E4%BB%80%E4%B9%88%E6%98%AFshallow-heap%E5%8F%8Aretained-heap/" class="post-meta-item leancloud_visitors" data-flag-title="一文让你理解什么是shallow heap及retained heap" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/%E4%B8%80%E6%96%87%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3%E4%BB%80%E4%B9%88%E6%98%AFshallow-heap%E5%8F%8Aretained-heap/#SOHUCS" itemprop="discussionUrl">
+        <span id="url::https://www.lifehelper.top/%E4%B8%80%E6%96%87%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3%E4%BB%80%E4%B9%88%E6%98%AFshallow-heap%E5%8F%8Aretained-heap/" class="cy_cmt_count" data-xid="一文让你理解什么是shallow-heap及retained-heap/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>快速定位性能故障并非一朝一夕之功，需要我们对很多概念有很深刻的理解，在前文中，我们介绍了heap dump的相关概念和其获取方式，今天我们一起来了解一下什么是：<br>Shallow 和 retained sizes。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/%E4%B8%80%E6%96%87%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3%E4%BB%80%E4%B9%88%E6%98%AFshallow-heap%E5%8F%8Aretained-heap/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      
+
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/java%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B%E4%BA%8C-%E9%99%84MAT%E8%B6%85%E5%85%A8%E6%93%8D%E4%BD%9C%E6%96%87%E6%A1%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/java%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B%E4%BA%8C-%E9%99%84MAT%E8%B6%85%E5%85%A8%E6%93%8D%E4%BD%9C%E6%96%87%E6%A1%A3/" class="post-title-link" itemprop="url">java内存溢出问题分析过程二(附MAT超全操作文档)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:56:36 / 修改时间：12:57:43" itemprop="dateCreated datePublished" datetime="2020-04-04T12:56:36+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM性能分析系列</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/java%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B%E4%BA%8C-%E9%99%84MAT%E8%B6%85%E5%85%A8%E6%93%8D%E4%BD%9C%E6%96%87%E6%A1%A3/" class="post-meta-item leancloud_visitors" data-flag-title="java内存溢出问题分析过程二(附MAT超全操作文档)" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/java%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B%E4%BA%8C-%E9%99%84MAT%E8%B6%85%E5%85%A8%E6%93%8D%E4%BD%9C%E6%96%87%E6%A1%A3/#SOHUCS" itemprop="discussionUrl">
+        <span id="url::https://www.lifehelper.top/java%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B%E4%BA%8C-%E9%99%84MAT%E8%B6%85%E5%85%A8%E6%93%8D%E4%BD%9C%E6%96%87%E6%A1%A3/" class="cy_cmt_count" data-xid="java内存溢出问题分析过程二-附MAT超全操作文档/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>java程序的性能问题定位，一直都是开发者需要面对的一个“拦路虎”，<br>在前面的两篇文章中，已经介绍了Heap dump的概念和生成方式，以及Shallow heap和Retained heap以及GC ROOT的概念，本篇文章，我们继续来介绍一些新的概念和基于一个dump案例，详尽的介绍，在程序OOM后，改如何去定位具体原因。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/java%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B%E4%BA%8C-%E9%99%84MAT%E8%B6%85%E5%85%A8%E6%93%8D%E4%BD%9C%E6%96%87%E6%A1%A3/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      
+
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/" class="post-title-link" itemprop="url">Nginx双机主备（Keepalived实现）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:55:35 / 修改时间：12:56:11" itemprop="dateCreated datePublished" datetime="2020-04-04T12:55:35+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Nginx%E9%AB%98%E5%B9%B6%E5%8F%91%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Nginx高并发系列</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="Nginx双机主备（Keepalived实现）" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
+        <span id="url::https://www.lifehelper.top/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/" class="cy_cmt_count" data-xid="Nginx双机主备（Keepalived实现）/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>首先介绍一下Keepalived，它是一个高性能的服务器高可用或热备解决方案，起初是专为LVS负载均衡软件设计的，Keepalived主要来防止服务器单点故障的发生问题，可以通过其与Nginx的配合实现web服务端的高可用。</p>
+<p>Keepalived以VRRP协议为实现基础，VRRP是Virtual  Router  Redundancy Protocol（虚拟路由冗余协议）的缩写，VRRP协议将两台或多台路由器设备虚拟成一个设备，对外提供虚拟路由器IP（一个或多个）。</p>
+<p>VRRP出现的目的就是为了解决静态路由的单点故障问题的，它能保证当个别节点宕机时，整个网络可以不间断地运行。</p>
+<p>下面我们介绍一下nginx keepalived高可用方案的部署安装。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      
+
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">分布式链路追踪工具pinpoint采样率原理分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:54:25 / 修改时间：12:55:13" itemprop="dateCreated datePublished" datetime="2020-04-04T12:54:25+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BE%A0%E6%A2%A6%E8%AF%B4Pinpoint%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">侠梦说Pinpoint系列</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" class="post-meta-item leancloud_visitors" data-flag-title="分布式链路追踪工具pinpoint采样率原理分析" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/#SOHUCS" itemprop="discussionUrl">
+        <span id="url::https://www.lifehelper.top/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" class="cy_cmt_count" data-xid="分布式链路追踪工具pinpoint采样率原理分析/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>一系列的服务上云后，可能分布在几千甚至几万台服务器上，服务于服务之间存在大量复杂的调用关系，而pinpoint在采集这些服务数据时，同样会产生大量的报文。</p>
+<p>在naver公司的在线门户服务有海量请求。单个服务每天处理超过200亿请求。如果要跟踪所有的请求，解决的办法是需要添加足够多的网络设施和服务器来来支撑收集数据。</p>
+<p>但是对于这种非核心生产的监控系统来说，是很不划算的，浪费金钱又浪费资源。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      
+
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/" class="post-title-link" itemprop="url">一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:53:06 / 修改时间：12:53:51" itemprop="dateCreated datePublished" datetime="2020-04-04T12:53:06+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BE%A0%E6%A2%A6%E8%AF%B4Pinpoint%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">侠梦说Pinpoint系列</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
+        <span id="url::https://www.lifehelper.top/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/" class="cy_cmt_count" data-xid="一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="Thrift-是什么"><a href="#Thrift-是什么" class="headerlink" title="Thrift 是什么"></a>Thrift 是什么</h3><p>研究分布式调用链工具pinpoint的时候，在源码里看到了Thrift相关的代码，所以来了兴趣，想研究研究这个框架。</p>
+<p>Thrift 目前是 Apache 的一个项目，但是它是由facebook研发产生的。</p>
+<p>它的定位是一个 跨语言的RPC服务开发框架。</p>
+<p>在个不同语言环境的系统中承担大量数据传输和通信的工作。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      
+
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E6%90%9Ejava%E5%BC%80%E5%8F%91-%E7%9C%8B%E6%87%82JVM%E7%9A%84-GC-%E6%97%A5%E5%BF%97%E7%9C%9F%E7%9A%84%E5%BE%88%E9%87%8D%E8%A6%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/%E6%90%9Ejava%E5%BC%80%E5%8F%91-%E7%9C%8B%E6%87%82JVM%E7%9A%84-GC-%E6%97%A5%E5%BF%97%E7%9C%9F%E7%9A%84%E5%BE%88%E9%87%8D%E8%A6%81/" class="post-title-link" itemprop="url">搞java开发 看懂JVM的 GC 日志真的很重要</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:51:40 / 修改时间：12:56:54" itemprop="dateCreated datePublished" datetime="2020-04-04T12:51:40+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM性能分析系列</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/%E6%90%9Ejava%E5%BC%80%E5%8F%91-%E7%9C%8B%E6%87%82JVM%E7%9A%84-GC-%E6%97%A5%E5%BF%97%E7%9C%9F%E7%9A%84%E5%BE%88%E9%87%8D%E8%A6%81/" class="post-meta-item leancloud_visitors" data-flag-title="搞java开发 看懂JVM的 GC 日志真的很重要" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/%E6%90%9Ejava%E5%BC%80%E5%8F%91-%E7%9C%8B%E6%87%82JVM%E7%9A%84-GC-%E6%97%A5%E5%BF%97%E7%9C%9F%E7%9A%84%E5%BE%88%E9%87%8D%E8%A6%81/#SOHUCS" itemprop="discussionUrl">
+        <span id="url::https://www.lifehelper.top/%E6%90%9Ejava%E5%BC%80%E5%8F%91-%E7%9C%8B%E6%87%82JVM%E7%9A%84-GC-%E6%97%A5%E5%BF%97%E7%9C%9F%E7%9A%84%E5%BE%88%E9%87%8D%E8%A6%81/" class="cy_cmt_count" data-xid="搞java开发-看懂JVM的-GC-日志真的很重要/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>今天整理的这篇文章，整理自以前记录的日常笔记。</p>
+<p>刚开始接触JVM时，对待GC的日志，是保持”逃避”态度的，线上部署的程序没有达到期望的运行效率，或是预期目标时，往往会把问题的矛头指向内存上。</p>
+<p>是不是内存不够？</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/%E6%90%9Ejava%E5%BC%80%E5%8F%91-%E7%9C%8B%E6%87%82JVM%E7%9A%84-GC-%E6%97%A5%E5%BF%97%E7%9C%9F%E7%9A%84%E5%BE%88%E9%87%8D%E8%A6%81/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      
+
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/" class="post-title-link" itemprop="url">为什么你的 Spring Task 定时任务没有定时执行？</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:50:16 / 修改时间：12:52:26" itemprop="dateCreated datePublished" datetime="2020-04-04T12:50:16+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SpringBoot%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">SpringBoot微服务系列</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/" class="post-meta-item leancloud_visitors" data-flag-title="为什么你的 Spring Task 定时任务没有定时执行？" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/#SOHUCS" itemprop="discussionUrl">
+        <span id="url::https://www.lifehelper.top/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/" class="cy_cmt_count" data-xid="为什么你的-Spring-Task-定时任务没有定时执行？/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>定时任务的使用，在开发中可谓是家常便饭了，定时发送邮件、短信。 避免数据库，数据表过大，定时将数据转储。通知、对账等等。</p>
+<p>当然实现定时任务的方式也有很多，比如使用 linux 下的 contab 脚本，jdk 中自带的 Timer 类。Spring Task 或是 Quartz 。</p>
+<p>相信你也有过如下的疑问：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84-Spring-Task-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%B2%A1%E6%9C%89%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%EF%BC%9F/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      
+
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/" class="post-title-link" itemprop="url">Hbase入门精要</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:48:51 / 修改时间：12:52:40" itemprop="dateCreated datePublished" datetime="2020-04-04T12:48:51+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE%E4%B9%8BHbase/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据之Hbase</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/" class="post-meta-item leancloud_visitors" data-flag-title="Hbase入门精要" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/#SOHUCS" itemprop="discussionUrl">
+        <span id="url::https://www.lifehelper.top/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/" class="cy_cmt_count" data-xid="Hbase入门精要/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>HBase，是基于Google Bigtable实现的开源、分布式、可伸缩的列式存储数据库。</p>
+<p>诞生于Hadoop，也是Hadoop生态的重要一环，如今作为一个Apache顶级项目，早已经不能将其仅仅看作Hadoop的一部分，基于Storm，Spark等框架的数据处理方案中，都有它的身影，可以说它已经成为大数据工具箱中非常重要的一种数据存储工具，也因此必然会被很纳入很多人学习计划。</p>
+<p>对于任何一个新技术的介绍，我认为一种有效的学习方式是：对其有简要认知后，通过Quick Start式的使用，获得直观的感知，消除距离感，然后再带着使用过程中的疑问去了解其背后的真相，最后支撑我们将其应用到实际工程。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/Hbase%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      
+
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E4%BD%BF%E7%94%A8maven%E6%9E%84%E5%BB%BA%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%9A%84%E5%AE%9E%E8%B7%B5%E5%BF%83%E5%BE%97/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -202,7 +1144,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-04-04 12:34:42 / 修改时间：12:38:15" itemprop="dateCreated datePublished" datetime="2020-04-04T12:34:42+08:00">2020-04-04</time>
+              <time title="创建时间：2020-04-04 12:34:42 / 修改时间：12:48:01" itemprop="dateCreated datePublished" datetime="2020-04-04T12:34:42+08:00">2020-04-04</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -405,978 +1347,12 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E9%9D%A2%E8%AF%95%E6%97%A0%E6%83%A7%EF%BC%8C%E8%BF%99%E4%BA%9B%E7%A8%8B%E5%BA%8F%E5%91%98%E9%9D%A2%E8%AF%95%E9%A2%98%E5%90%88%E9%9B%86%E4%B8%8E%E4%BD%A0%E5%88%86%E4%BA%AB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xiameng.jpg">
-      <meta itemprop="name" content="侠梦">
-      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="侠梦的开发笔记">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/%E9%9D%A2%E8%AF%95%E6%97%A0%E6%83%A7%EF%BC%8C%E8%BF%99%E4%BA%9B%E7%A8%8B%E5%BA%8F%E5%91%98%E9%9D%A2%E8%AF%95%E9%A2%98%E5%90%88%E9%9B%86%E4%B8%8E%E4%BD%A0%E5%88%86%E4%BA%AB/" class="post-title-link" itemprop="url">面试无惧，这些程序员面试题合集与你分享</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-03-02 20:57:54" itemprop="dateCreated datePublished" datetime="2020-03-02T20:57:54+08:00">2020-03-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-03 18:22:37" itemprop="dateModified" datetime="2020-03-03T18:22:37+08:00">2020-03-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%A8%8B%E5%BA%8F%E5%91%98%E9%9D%A2%E8%AF%95/" itemprop="url" rel="index">
-                    <span itemprop="name">程序员面试</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/%E9%9D%A2%E8%AF%95%E6%97%A0%E6%83%A7%EF%BC%8C%E8%BF%99%E4%BA%9B%E7%A8%8B%E5%BA%8F%E5%91%98%E9%9D%A2%E8%AF%95%E9%A2%98%E5%90%88%E9%9B%86%E4%B8%8E%E4%BD%A0%E5%88%86%E4%BA%AB/" class="post-meta-item leancloud_visitors" data-flag-title="面试无惧，这些程序员面试题合集与你分享" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan：</span>
-    
-    
-      <a title="changyan" href="/%E9%9D%A2%E8%AF%95%E6%97%A0%E6%83%A7%EF%BC%8C%E8%BF%99%E4%BA%9B%E7%A8%8B%E5%BA%8F%E5%91%98%E9%9D%A2%E8%AF%95%E9%A2%98%E5%90%88%E9%9B%86%E4%B8%8E%E4%BD%A0%E5%88%86%E4%BA%AB/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::https://www.lifehelper.top/%E9%9D%A2%E8%AF%95%E6%97%A0%E6%83%A7%EF%BC%8C%E8%BF%99%E4%BA%9B%E7%A8%8B%E5%BA%8F%E5%91%98%E9%9D%A2%E8%AF%95%E9%A2%98%E5%90%88%E9%9B%86%E4%B8%8E%E4%BD%A0%E5%88%86%E4%BA%AB/" class="cy_cmt_count" data-xid="面试无惧，这些程序员面试题合集与你分享/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>585</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>相信在日常的开发中，难免会遇到问题，特别是那种几天搞不定的bug,<br>最常见的办法就是找百度和谷歌，但是可能解决起来也没有那么轻松，最直接的办法就是问别人，因为每个人看待问题的思路不一样，所有有必要成立一个程序员的联盟。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/%E9%9D%A2%E8%AF%95%E6%97%A0%E6%83%A7%EF%BC%8C%E8%BF%99%E4%BA%9B%E7%A8%8B%E5%BA%8F%E5%91%98%E9%9D%A2%E8%AF%95%E9%A2%98%E5%90%88%E9%9B%86%E4%B8%8E%E4%BD%A0%E5%88%86%E4%BA%AB/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      
-
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E4%BB%8ESpark-WordCount%E7%A8%8B%E5%BA%8F%E8%AE%A4%E8%AF%86Spark%E6%9E%B6%E6%9E%84%EF%BC%88%E4%BA%8C%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xiameng.jpg">
-      <meta itemprop="name" content="侠梦">
-      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="侠梦的开发笔记">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/%E4%BB%8ESpark-WordCount%E7%A8%8B%E5%BA%8F%E8%AE%A4%E8%AF%86Spark%E6%9E%B6%E6%9E%84%EF%BC%88%E4%BA%8C%EF%BC%89/" class="post-title-link" itemprop="url">从Spark WordCount程序认识Spark架构（二）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-03-01 11:07:13" itemprop="dateCreated datePublished" datetime="2020-03-01T11:07:13+08:00">2020-03-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-03 18:21:21" itemprop="dateModified" datetime="2020-03-03T18:21:21+08:00">2020-03-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">Spark从入门到成神之路</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/%E4%BB%8ESpark-WordCount%E7%A8%8B%E5%BA%8F%E8%AE%A4%E8%AF%86Spark%E6%9E%B6%E6%9E%84%EF%BC%88%E4%BA%8C%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="从Spark WordCount程序认识Spark架构（二）" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan：</span>
-    
-    
-      <a title="changyan" href="/%E4%BB%8ESpark-WordCount%E7%A8%8B%E5%BA%8F%E8%AE%A4%E8%AF%86Spark%E6%9E%B6%E6%9E%84%EF%BC%88%E4%BA%8C%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::https://www.lifehelper.top/%E4%BB%8ESpark-WordCount%E7%A8%8B%E5%BA%8F%E8%AE%A4%E8%AF%86Spark%E6%9E%B6%E6%9E%84%EF%BC%88%E4%BA%8C%EF%BC%89/" class="cy_cmt_count" data-xid="从Spark-WordCount程序认识Spark架构（二）/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>3.4k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>在上文中我们学习到了RDD(弹性分布式数据集)的基础概念，而本文介绍的wordcount，相当于入门spark的hello word程序。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/%E4%BB%8ESpark-WordCount%E7%A8%8B%E5%BA%8F%E8%AE%A4%E8%AF%86Spark%E6%9E%B6%E6%9E%84%EF%BC%88%E4%BA%8C%EF%BC%89/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      
-
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/Spark%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8CHeap%20size%E4%B8%8D%E8%B6%B3%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xiameng.jpg">
-      <meta itemprop="name" content="侠梦">
-      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="侠梦的开发笔记">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/Spark%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8CHeap%20size%E4%B8%8D%E8%B6%B3%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" class="post-title-link" itemprop="url">Spark本地运行Heap size不足解决方案</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-02-29 20:33:00 / 修改时间：21:10:38" itemprop="dateCreated datePublished" datetime="2020-02-29T20:33:00+08:00">2020-02-29</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Error%E7%96%91%E9%9A%BE%E6%9D%82%E7%97%87/" itemprop="url" rel="index">
-                    <span itemprop="name">Error疑难杂症</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/Spark%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8CHeap%20size%E4%B8%8D%E8%B6%B3%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" class="post-meta-item leancloud_visitors" data-flag-title="Spark本地运行Heap size不足解决方案" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan：</span>
-    
-    
-      <a title="changyan" href="/Spark%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8CHeap%20size%E4%B8%8D%E8%B6%B3%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::https://www.lifehelper.top/Spark%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8CHeap%20size%E4%B8%8D%E8%B6%B3%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" class="cy_cmt_count" data-xid="Spark本地运行Heap size不足解决方案/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>437</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>本地运行spark程序的时候，报错：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java.lang.IllegalArgumentException: System memory </span><br><span class="line">259522560 must be at least 471859200. </span><br><span class="line">Please increase heap size using the --driver-memory option or </span><br><span class="line">spark.driver.memory in Spark configuration.</span><br></pre></td></tr></table></figure>
-
-<h4 id="本地解决办法一"><a href="#本地解决办法一" class="headerlink" title="本地解决办法一"></a>本地解决办法一</h4><p>代码中设置：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sparkConf.set(&quot;spark.testing.memory&quot;,(512 * 1014 * 1024)+&quot;&quot;);</span><br></pre></td></tr></table></figure>
-
-
-<p>注意，这里中间的单词是testing。</p>
-<p>其他解决办法：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/Spark%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8CHeap%20size%E4%B8%8D%E8%B6%B3%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      
-
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xiameng.jpg">
-      <meta itemprop="name" content="侠梦">
-      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="侠梦的开发笔记">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">Spark从入门到成神之路-Spark理论开山篇（一）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-28 22:53:54" itemprop="dateCreated datePublished" datetime="2020-02-28T22:53:54+08:00">2020-02-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-02 18:37:09" itemprop="dateModified" datetime="2020-03-02T18:37:09+08:00">2020-03-02</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">Spark从入门到成神之路</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="Spark从入门到成神之路-Spark理论开山篇（一）" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan：</span>
-    
-    
-      <a title="changyan" href="/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::https://www.lifehelper.top/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/" class="cy_cmt_count" data-xid="Spark从入门到成神之路-Spark理论开山篇（一）/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.8k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="一句话理解Spark是什么"><a href="#一句话理解Spark是什么" class="headerlink" title="一句话理解Spark是什么"></a>一句话理解Spark是什么</h4><p>spark是一个基于内存计算的框架，是一种通用的大数据快速处理引擎。</p>
-<h4 id="spark的版本支持情况"><a href="#spark的版本支持情况" class="headerlink" title="spark的版本支持情况"></a>spark的版本支持情况</h4><p>本文基于Spark2.3.1做阐述说明。</p>
-<p><img src="http://img.lifehelper.top/FhJjKwYnJCisDAggqDj9tPfQU9ra" alt="file"></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF-Spark%E7%90%86%E8%AE%BA%E5%BC%80%E5%B1%B1%E7%AF%87%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      
-
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8BCountDownLatch%E7%9A%84%E7%94%A8%E6%B3%95%E5%8F%8A%E5%8E%9F%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xiameng.jpg">
-      <meta itemprop="name" content="侠梦">
-      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="侠梦的开发笔记">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8BCountDownLatch%E7%9A%84%E7%94%A8%E6%B3%95%E5%8F%8A%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">多线程之CountDownLatch的用法及原理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-02-24 20:57:54 / 修改时间：21:09:07" itemprop="dateCreated datePublished" datetime="2020-02-24T20:57:54+08:00">2020-02-24</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">多线程</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8BCountDownLatch%E7%9A%84%E7%94%A8%E6%B3%95%E5%8F%8A%E5%8E%9F%E7%90%86/" class="post-meta-item leancloud_visitors" data-flag-title="多线程之CountDownLatch的用法及原理" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan：</span>
-    
-    
-      <a title="changyan" href="/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8BCountDownLatch%E7%9A%84%E7%94%A8%E6%B3%95%E5%8F%8A%E5%8E%9F%E7%90%86/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::https://www.lifehelper.top/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8BCountDownLatch%E7%9A%84%E7%94%A8%E6%B3%95%E5%8F%8A%E5%8E%9F%E7%90%86/" class="cy_cmt_count" data-xid="多线程之CountDownLatch的用法及原理/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>4.4k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>4 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="前言-CountDownLatch是什么？"><a href="#前言-CountDownLatch是什么？" class="headerlink" title="前言-CountDownLatch是什么？"></a>前言-CountDownLatch是什么？</h4><p>CountDownLatch是具有synchronized机制的一个工具，目的是让一个或者多个线程等待，直到其他线程的一系列操作完成。</p>
-<p>CountDownLatch初始化的时候，需要提供一个整形数字，数字代表着线程需要调用countDown()方法的次数，当计数为0时，线程才会继续执行await()方法后的其他内容。<br>CountDownLatch(int count);</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8BCountDownLatch%E7%9A%84%E7%94%A8%E6%B3%95%E5%8F%8A%E5%8E%9F%E7%90%86/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      
-
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/Elasticsearch%E6%B8%85%E7%90%86%E5%8E%86%E5%8F%B2%E7%B4%A2%E5%BC%95%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xiameng.jpg">
-      <meta itemprop="name" content="侠梦">
-      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="侠梦的开发笔记">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/Elasticsearch%E6%B8%85%E7%90%86%E5%8E%86%E5%8F%B2%E7%B4%A2%E5%BC%95%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">Elasticsearch清理历史索引笔记</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-02-24 13:40:54 / 修改时间：13:41:11" itemprop="dateCreated datePublished" datetime="2020-02-24T13:40:54+08:00">2020-02-24</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Elasticsearch%E8%BF%90%E7%BB%B4%E5%AE%9E%E6%88%98%E6%94%BB%E7%95%A5/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch运维实战攻略</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/Elasticsearch%E6%B8%85%E7%90%86%E5%8E%86%E5%8F%B2%E7%B4%A2%E5%BC%95%E7%AC%94%E8%AE%B0/" class="post-meta-item leancloud_visitors" data-flag-title="Elasticsearch清理历史索引笔记" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan：</span>
-    
-    
-      <a title="changyan" href="/Elasticsearch%E6%B8%85%E7%90%86%E5%8E%86%E5%8F%B2%E7%B4%A2%E5%BC%95%E7%AC%94%E8%AE%B0/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::https://www.lifehelper.top/Elasticsearch%E6%B8%85%E7%90%86%E5%8E%86%E5%8F%B2%E7%B4%A2%E5%BC%95%E7%AC%94%E8%AE%B0/" class="cy_cmt_count" data-xid="Elasticsearch清理历史索引笔记/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.6k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h5 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h5><ul>
-<li>es用作海量数据和存储和检索，对于较大日志数据，如果全部存储在一个索引中，<br>像数据库表一样，久而久之，检索查询会越来越慢，服务器压力也大。无论是按天分索引、还是按月份索引，一般建立索引的时候都会带上时间。</li>
-<li>很明确的说，已经超过一定量级的索引，应该是不会再写入新数据了，可以强制进行合并压缩，设置只读等操作。</li>
-<li>对于搜索来说，合并的分片越少，查询和排序越快（想象一下深度分页。。。）</li>
-<li>我们的文档存储在分片中，并且在分片中被索引，但是我们的应用程序不会直接与它们通信，取而代之的是，直接与索引通信，像查询数据库表一样，我们可能只需要查询近两天的数据就能得到我们想要的结果，而不是扫描包含所有数据的大表。<ul>
-<li>将数据按时间分索引存储，将所有数据全load到内存，查询不走磁盘，直接走内存是很快的。</li>
-</ul>
-</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/Elasticsearch%E6%B8%85%E7%90%86%E5%8E%86%E5%8F%B2%E7%B4%A2%E5%BC%95%E7%AC%94%E8%AE%B0/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      
-
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/Elasticsearch%E5%AE%89%E5%85%A8%E6%8F%92%E4%BB%B6Searchguard%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xiameng.jpg">
-      <meta itemprop="name" content="侠梦">
-      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="侠梦的开发笔记">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/Elasticsearch%E5%AE%89%E5%85%A8%E6%8F%92%E4%BB%B6Searchguard%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">Elasticsearch安全插件Searchguard安装笔记</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-22 20:48:54" itemprop="dateCreated datePublished" datetime="2020-02-22T20:48:54+08:00">2020-02-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-02-23 22:41:48" itemprop="dateModified" datetime="2020-02-23T22:41:48+08:00">2020-02-23</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Elasticsearch%E8%BF%90%E7%BB%B4%E5%AE%9E%E6%88%98%E6%94%BB%E7%95%A5/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch运维实战攻略</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/Elasticsearch%E5%AE%89%E5%85%A8%E6%8F%92%E4%BB%B6Searchguard%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/" class="post-meta-item leancloud_visitors" data-flag-title="Elasticsearch安全插件Searchguard安装笔记" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan：</span>
-    
-    
-      <a title="changyan" href="/Elasticsearch%E5%AE%89%E5%85%A8%E6%8F%92%E4%BB%B6Searchguard%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::https://www.lifehelper.top/Elasticsearch%E5%AE%89%E5%85%A8%E6%8F%92%E4%BB%B6Searchguard%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/" class="cy_cmt_count" data-xid="Elasticsearch安全插件Searchguard安装笔记/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>8.7k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>8 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h5 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h5><ul>
-<li>es在 6.8 和 7.1 版本后，核心安全功能（例如 TLS、文件和原生 Realm 身份验证，以及基于角色的访问控制）免费提供，如果使用的是高版本es则是开箱即用的，对于低版本的es安全功能是收费的，这里使用第三方的安全框架searchguard来加固低版本的es.但本次用es7.1.1来演示。<br>网上容器化安装的资料很少，这里 记录一下使用docker来安装。</li>
-<li>所有操作均在考虑无外部网情况下离线安装（除了依赖的操作系统镜像）。</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/Elasticsearch%E5%AE%89%E5%85%A8%E6%8F%92%E4%BB%B6Searchguard%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      
-
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/xiameng.jpg">
-      <meta itemprop="name" content="侠梦">
-      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="侠梦的开发笔记">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-22 20:35:07" itemprop="dateCreated datePublished" datetime="2020-02-22T20:35:07+08:00">2020-02-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-02-24 21:00:05" itemprop="dateModified" datetime="2020-02-24T21:00:05+08:00">2020-02-24</time>
-              </span>
-
-          
-            <span id="/hello-world/" class="post-meta-item leancloud_visitors" data-flag-title="Hello World" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan：</span>
-    
-    
-      <a title="changyan" href="/hello-world/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::https://www.lifehelper.top/hello-world/" class="cy_cmt_count" data-xid="hello-world/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>28</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>我的个人博客开通了，首篇文章，来个Hello World!</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/hello-world/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      
-
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
 
 
 
@@ -1443,20 +1419,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1525,13 +1501,13 @@
       <i class="fa fa-area-chart"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">29k</span>
+    <span title="站点总字数">52k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">26 分钟</span>
+    <span title="站点阅读时长">47 分钟</span>
 </div>
 
         

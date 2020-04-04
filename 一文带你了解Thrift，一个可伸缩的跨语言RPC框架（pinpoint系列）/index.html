@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#468eff">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#468eff">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.lifehelper.top","root":"/","scheme":"Gemini","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#468eff","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":false,"nav":null,"activeClass":"changyan"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Thrift 是什么研究分布式调用链工具pinpoint的时候，在源码里看到了Thrift相关的代码，所以来了兴趣，想研究研究这个框架。 Thrift 目前是 Apache 的一个项目，但是它是由facebook研发产生的。 它的定位是一个 跨语言的RPC服务开发框架。 在个不同语言环境的系统中承担大量数据传输和通信的工作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）">
+<meta property="og:url" content="https://www.lifehelper.top/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/index.html">
+<meta property="og:site_name" content="侠梦的开发笔记">
+<meta property="og:description" content="Thrift 是什么研究分布式调用链工具pinpoint的时候，在源码里看到了Thrift相关的代码，所以来了兴趣，想研究研究这个框架。 Thrift 目前是 Apache 的一个项目，但是它是由facebook研发产生的。 它的定位是一个 跨语言的RPC服务开发框架。 在个不同语言环境的系统中承担大量数据传输和通信的工作。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://img.lifehelper.top/FifP9CKxE0eaaBXhJ8Yo2nlPhsRi">
+<meta property="og:image" content="http://img.lifehelper.top/Fu3DHql0vnxi1U-Vy2ezOi1EzrZN">
+<meta property="og:image" content="http://img.lifehelper.top/FuPAvRWaf674NmUmpK6OjDUfz722">
+<meta property="og:image" content="http://img.lifehelper.top/FqOhd9RYeTR-bn4GpI5BrT0qFmvM">
+<meta property="og:image" content="http://img.lifehelper.top/FiCEPVJ3Ef5AQFkfMXWSYgkBLCDo">
+<meta property="og:image" content="http://img.lifehelper.top/FvBQ2Rc9rj83G-EqJIXoH1lTuqSK">
+<meta property="og:image" content="http://img.lifehelper.top/Fgb7Y6nysqj-GnxInlVkrC1woGd3">
+<meta property="og:image" content="http://img.lifehelper.top/FtHvgv-q6foKsdoLqQb3Cx6ATXIW">
+<meta property="og:image" content="http://img.lifehelper.top/FnwrCi4wLUXUut6-sKTnHztBGXOq">
+<meta property="og:image" content="http://img.lifehelper.top/FvproiIs6mIdQ6tU0efFCPikdb7f">
+<meta property="article:published_time" content="2020-04-04T04:53:06.000Z">
+<meta property="article:modified_time" content="2020-04-04T04:53:51.771Z">
+<meta property="article:author" content="侠梦">
+<meta property="article:tag" content="pinpoint">
+<meta property="article:tag" content="rpc框架">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://img.lifehelper.top/FifP9CKxE0eaaBXhJ8Yo2nlPhsRi">
+
+<link rel="canonical" href="https://www.lifehelper.top/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列） | 侠梦的开发笔记</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?41ade542312b97d643a8df3f7f53917e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  <script>
+    !function(e,t,n,g,i){e[i]=e[i]||function(){(e[i].q=e[i].q||[]).push(arguments)},n=t.createElement("script"),tag=t.getElementsByTagName("script")[0],n.async=1,n.src=('https:'==document.location.protocol?'https://':'http://')+g,tag.parentNode.insertBefore(n,tag)}(window,document,"script","assets.growingio.com/2.1/gio.js","gio");
+    gio('init', 'ad858f46b1a00497', {});
+    gio('send');
+  </script>
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">侠梦的开发笔记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">自助者,天助之</h1>
+      
+  </div>
+
+  <div class="site-nav-right"></div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">17</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">16</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:53:06 / 修改时间：12:53:51" itemprop="dateCreated datePublished" datetime="2020-04-04T12:53:06+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BE%A0%E6%A2%A6%E8%AF%B4Pinpoint%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">侠梦说Pinpoint系列</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
+        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="Thrift-是什么"><a href="#Thrift-是什么" class="headerlink" title="Thrift 是什么"></a>Thrift 是什么</h3><p>研究分布式调用链工具pinpoint的时候，在源码里看到了Thrift相关的代码，所以来了兴趣，想研究研究这个框架。</p>
+<p>Thrift 目前是 Apache 的一个项目，但是它是由facebook研发产生的。</p>
+<p>它的定位是一个 跨语言的RPC服务开发框架。</p>
+<p>在个不同语言环境的系统中承担大量数据传输和通信的工作。</p>
+<a id="more"></a> 
+
+<p><img src="http://img.lifehelper.top/FifP9CKxE0eaaBXhJ8Yo2nlPhsRi" alt="file"></p>
+<p>Thrift 支持包括上图中所有等28种语言，所以使得在使用不同编程语言的程序，可以很容易的传输共享数据和进行远程过程调用。</p>
+<p>它是一个轻量级的，独立于语言的开发框架，在点对点rpc数据传输，数据的序列化上为我们提供了比较简洁的抽象和实现。</p>
+<p>同样的，由于Thrift在传输数据时，采用的是二进制，相对于在HTTP协议中使用的xml和json占用体积更小，在很多高并发、数据量级大的系统中更加有优势。</p>
+<p>我们通过定义一个以.thrift结尾的文件作为输入源，内容包含接口的定义，然后通过生成代码的方式，来构建不同语言的RPC客户端和服务端。</p>
+<p><img src="http://img.lifehelper.top/Fu3DHql0vnxi1U-Vy2ezOi1EzrZN" alt="file"></p>
+<h3 id="Thrift-的各个组件层级"><a href="#Thrift-的各个组件层级" class="headerlink" title="Thrift 的各个组件层级"></a>Thrift 的各个组件层级</h3><p>在 Thrift 的客户端和服务端交互中，各个组件都是比较灵活的，做到了充分的低耦合，所以我们可以基于不同的应用场景，选择不同的方式搭建或是语言实现。</p>
+<p><img src="http://img.lifehelper.top/FuPAvRWaf674NmUmpK6OjDUfz722" alt="file"></p>
+<p>由上图，可以看出，最上层是我们编写的Thrift代码，它是一种IDL（接口描述语言）， 是用于描述的服务接口信息的。<br>我们在这个文件中写好相关的注释，就可以用它来作为接口文档，提供给客户端使用了。<br>同时，IDL文件，也是自动生成接口代码的输入源，定义出来的接口能够很灵活的支持扩展。</p>
+<p>第二层是使用Thrift编译工具生成的代码，主要用于结构化的数据解析，发送和接收</p>
+<p>通信协议层主要是定义数据传输的格式，对传输的数据进行序列化和反序列化，<br>从协议划分上来说，主要包含两个方面，一是文本，而是二进制，既然使用了Thrift，使用其二进制协议占多数，当然更是要结合实际的业务场景来分析考虑。</p>
+<p><img src="http://img.lifehelper.top/FqOhd9RYeTR-bn4GpI5BrT0qFmvM" alt="file"></p>
+<p>传输层负责直接从网络中读取和写入数据，它定义了具体的网络传输协议；比如说TCP/IP传输等。</p>
+<p><img src="http://img.lifehelper.top/FiCEPVJ3Ef5AQFkfMXWSYgkBLCDo" alt="file"></p>
+<h3 id="Thrift-的数据结构"><a href="#Thrift-的数据结构" class="headerlink" title="Thrift 的数据结构"></a>Thrift 的数据结构</h3><p>Thrift 脚本可定义的数据类型包括以下几种类型：</p>
+<p><img src="http://img.lifehelper.top/FvBQ2Rc9rj83G-EqJIXoH1lTuqSK" alt="file"></p>
+<p>图片来自 wangyangfu，其中，byte、i16、i32、i64分别表示：8/16/32/64位有符号整数。</p>
+<h3 id="Thrift-和-Http-区别？"><a href="#Thrift-和-Http-区别？" class="headerlink" title="Thrift 和 Http 区别？"></a>Thrift 和 Http 区别？</h3><p>其实 Thrift 的主要特点就是跨语言、能自动生成客户端。相对于 http 协议而言，算是比较小众。<br>它是基于 socket，通过 TCP 协议实现，相比较无连接、无状态的 HTTP 协议的，每次打开、关闭连接会比较消耗性能<br>并且需要管理维护很多 IDL 文件。</p>
+<p>基于thrift实现高效的二进制传输<br>而 http 大部分是通过 json 来实现的，字节大小和序列化耗时都比 Thrift 要更消耗性能。</p>
+<p>总的来说，Thrift 更常见用于公司内部的系统服务之间调用，性能消耗比较低，保证服务质量，提高传输效率，而<br>http 主要用于对外的接口调用，浏览器、移动端、第三方接口等。</p>
+<h3 id="Thrift-的安装使用"><a href="#Thrift-的安装使用" class="headerlink" title="Thrift 的安装使用"></a>Thrift 的安装使用</h3><p>Thrift的官网地址是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;thrift.apache.org</span><br></pre></td></tr></table></figure>
+
+<p>这里我使用的版本是 thrift-0.10.0.exe，下载地址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;archive.apache.org&#x2F;dist&#x2F;thrift&#x2F;0.10.0&#x2F;thrift-0.10.0.exe</span><br></pre></td></tr></table></figure>
+
+
+<p>将下载好的trift-0.10.0.exe 重命名为 thrift.exe<br>并且在控制面板–&gt; Path环境变量中配置exe所在的目录<br>配置好后，命令行执行：</p>
+<p>thrift -version 应该会显示</p>
+<p><img src="http://img.lifehelper.top/Fgb7Y6nysqj-GnxInlVkrC1woGd3" alt="file"></p>
+<p> 表明安装成功。</p>
+<h3 id="Thrift-的编译"><a href="#Thrift-的编译" class="headerlink" title="Thrift 的编译"></a>Thrift 的编译</h3><p> 新建一个 maven 工程，在intf目录下新建一个 IUserInfo.thrift 文件，内容为：</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> struct User&#123;</span><br><span class="line">    1: i32 id</span><br><span class="line">    2: string name</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">service UserService&#123;</span><br><span class="line">    User getUser(1:i32 uid)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> cmd命令行进入这个文件所在目录，执行如下命令：</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">thrift -gen java IUserInfo.thrift</span><br></pre></td></tr></table></figure>
+
+<p>语法格式为：<br>thrift –gen <language> <Thrift filename></p>
+<p> 使用双面面命令即可将IDL文件编译成对应语言的接口文件。</p>
+<p> <img src="http://img.lifehelper.top/FtHvgv-q6foKsdoLqQb3Cx6ATXIW" alt="file"></p>
+<p> 执行完后，会生成两个Java类。当然idea开发工具也提供了Thrift的编译器支持，在插件仓库中搜索安装，配置相关的参数后，也能完成编译。</p>
+<p> <img src="http://img.lifehelper.top/FnwrCi4wLUXUut6-sKTnHztBGXOq" alt="file"></p>
+<h3 id="编写-Thrift-服务端"><a href="#编写-Thrift-服务端" class="headerlink" title="编写 Thrift 服务端"></a>编写 Thrift 服务端</h3> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 业务处理器</span><br><span class="line">       TProcessor processorr &#x3D; new UserService.Processor&lt;UserService.Iface&gt;(new UserServiceImpl());</span><br><span class="line">       &#x2F;&#x2F; 设置服务器</span><br><span class="line">       TServerSocket serverSocket &#x3D; new TServerSocket(9999);</span><br><span class="line">       &#x2F;&#x2F; 传输协议为二进制</span><br><span class="line">       TBinaryProtocol.Factory protocolFactory &#x3D; new TBinaryProtocol.Factory();</span><br><span class="line">       &#x2F;&#x2F; 使用单线程阻塞 I&#x2F;O 模型</span><br><span class="line">       TServer.Args simpleArgs &#x3D; new TServer.Args(serverSocket).processor(processorr).protocolFactory(protocolFactory);</span><br><span class="line">       TServer server &#x3D; new TSimpleServer(simpleArgs);</span><br><span class="line">       System.out.println(&quot;开启侠梦的Thrift服务器，监听端口:9999&quot;);</span><br><span class="line">       server.serve();</span><br></pre></td></tr></table></figure>
+
+<h3 id="编写-Thrift-客户端"><a href="#编写-Thrift-客户端" class="headerlink" title="编写 Thrift 客户端"></a>编写 Thrift 客户端</h3> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 设置调用的服务地址-端口</span><br><span class="line">   TTransport tTransport &#x3D; new TSocket(&quot;localhost&quot;, 9999);</span><br><span class="line">   &#x2F;&#x2F; 使用二进制协议</span><br><span class="line">   TProtocol protocol &#x3D; new TBinaryProtocol(tTransport);</span><br><span class="line">   &#x2F;&#x2F; 使用的接口</span><br><span class="line">   UserService.Client client &#x3D; new UserService.Client(protocol);</span><br><span class="line">   &#x2F;&#x2F; 打开 Socket</span><br><span class="line">   tTransport.open();</span><br><span class="line">   System.out.println(client.getUser(1));</span><br><span class="line">   tTransport.close();</span><br></pre></td></tr></table></figure>
+
+<p> 依次执行Server 端 和Client 后，效果如下：</p>
+<p> <img src="http://img.lifehelper.top/FvproiIs6mIdQ6tU0efFCPikdb7f" alt="file"></p>
+<p>至此，我们就完成了第一个Thrift 程序的编写。</p>
+<h3 id="pinpoint-中-为什么采用-Thrift-呢？"><a href="#pinpoint-中-为什么采用-Thrift-呢？" class="headerlink" title="pinpoint 中 为什么采用 Thrift 呢？"></a>pinpoint 中 为什么采用 Thrift 呢？</h3><p>通过使用二进制格式(thrift)可以提高编码速度，虽然它使用和调试要难一些。也有利于减少网络使用，因为生成的数据比较小。</p>
+<p>如果将一个长整型转换为固定长度的字符串， 数据大小一般是8个字节。然而，如果你用变长编码，数据大小可以是从1到10个字符，取决于给定数字的大小。</p>
+<p>为了减小数据大小，pinpoint 使用 Thrift 的CompactProtocol协议（压缩协议)来编码数据，因为变长字符串和记录数据可以为编码格式做优化。pinpoint agent通过基于跟踪的根方法的时间开始来转换其他的时间来减少数据大小。</p>
+<p>固定长度编码和可变长度编码的对比</p>
+<p>![file](<a href="http://img.lif" target="_blank" rel="noopener">http://img.lif</a><br>ehelper.top/FtS4T0sGZs4iTx3mD8Dbro2QSiPM)</p>
+<p>为了得到关于三个不同方法（见上图）被调用时间的数据，不得不在6个不同的点上测量时间，用固定长度编码这需要48个字节(6 * 8)。</p>
+<p>以此同时，pinpoint agent 使用可变长度编码并根据对应的格式记录数据。然后在其他时间点通过和参考点比较来计算时间值（在vector中），根方法的起点被确认为参考点。这只需要占用少量的字节，因为vector使用小数字。图4中消耗了13个字节。</p>
+<p>如果执行方法花费了更多时间，即使使用可变长度编码也会增加字节数量。但是，依然比固定长度编码更有效率。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>先总结一下介绍的内容：</p>
+<ul>
+<li>介绍了Thrift 的基本概念。</li>
+<li>Thrift 的协议层的作用</li>
+<li>Thrift 的数据结构</li>
+<li>Thrift 和 Http 区别？</li>
+<li>Thrift 的安装使用</li>
+<li>Thrift 的入门例子编写。</li>
+<li>Thrift 的编译和运行</li>
+<li>pinpoint什么采用 Thrift 的原因？</li>
+</ul>
+<p>本篇文章介绍了 跨语言的RPC框架 Thrift的入门知识，起源于研究Pinpoint的源码，在这里想说的是： 研究阅读某个框架的源码其实是很耗费精力的一件事，因为不同的人读同样的代码会有不同的感受，这取决于各自的认知和知识深度不同，但是我觉得思路应该都是一致的，那就是不应该局限在框架本身，而是站在创造者的角度，去思考，为什么最后造出了这样一个优秀的框架，它依赖的那些底层的硬件、或是软件。由点及面的将其剖析完整，希望能帮助到你。</p>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\分布式链路追踪工具pinpoint采样率原理分析\" rel="bookmark">分布式链路追踪工具pinpoint采样率原理分析</a></div>
+    </li>
+  </ul>
+<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">
+        -------------本文结束 <i class="fa fa-paw"></i> 感谢您的阅读------------- <br />
+
+        <div style='color:red'>
+        创建了一个java方面的互助群，和其他传统的学习群不同。<br />
+
+        在本群，你可以<br />
+        1）阐述你在开发过程中遇到的问题，群友集思广益，高效解答。<br />
+        2）分享自己学习的一些心得，让后来学习者少踩坑。<br />
+        3）资源共享，无论是好的学习视频还是文档都可以在群内共享。<br />
+        关注后回复问题答案与群友讨论：java中Integer包装类的基本数据类型是？<br />
+        </div>
+        <img width="600px" src="https://sourl.cn/LkG43C" alt="扫码关注，互相帮助" />
+        </div>
+    
+</div>
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    有疑问？加群讨论吧
+  </button>
+  <div id="qr" style="display: none;">
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>侠梦
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.lifehelper.top/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/" title="一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）">https://www.lifehelper.top/一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/pinpoint/" rel="tag"># pinpoint</a>
+              <a href="/tags/rpc%E6%A1%86%E6%9E%B6/" rel="tag"># rpc框架</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/%E6%90%9Ejava%E5%BC%80%E5%8F%91-%E7%9C%8B%E6%87%82JVM%E7%9A%84-GC-%E6%97%A5%E5%BF%97%E7%9C%9F%E7%9A%84%E5%BE%88%E9%87%8D%E8%A6%81/" rel="prev" title="搞java开发 看懂JVM的 GC 日志真的很重要">
+      <i class="fa fa-chevron-left"></i> 搞java开发 看懂JVM的 GC 日志真的很重要
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" rel="next" title="分布式链路追踪工具pinpoint采样率原理分析">
+      分布式链路追踪工具pinpoint采样率原理分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="SOHUCS"></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Thrift-是什么"><span class="nav-number">1.</span> <span class="nav-text">Thrift 是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thrift-的各个组件层级"><span class="nav-number">2.</span> <span class="nav-text">Thrift 的各个组件层级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thrift-的数据结构"><span class="nav-number">3.</span> <span class="nav-text">Thrift 的数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thrift-和-Http-区别？"><span class="nav-number">4.</span> <span class="nav-text">Thrift 和 Http 区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thrift-的安装使用"><span class="nav-number">5.</span> <span class="nav-text">Thrift 的安装使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thrift-的编译"><span class="nav-number">6.</span> <span class="nav-text">Thrift 的编译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编写-Thrift-服务端"><span class="nav-number">7.</span> <span class="nav-text">编写 Thrift 服务端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编写-Thrift-客户端"><span class="nav-number">8.</span> <span class="nav-text">编写 Thrift 客户端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pinpoint-中-为什么采用-Thrift-呢？"><span class="nav-number">9.</span> <span class="nav-text">pinpoint 中 为什么采用 Thrift 呢？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">10.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="侠梦"
+      src="/images/xiameng.jpg">
+  <p class="site-author-name" itemprop="name">侠梦</p>
+  <div class="site-description" itemprop="description">记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Hyq0823" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Hyq0823" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:82347749@qq.com" title="E-Mail → mailto:82347749@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5026953203" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;5026953203" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/u012811805" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;u012811805" rel="noopener" target="_blank"><i class="fa fa-fw fa-csdn"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/huang-quan-3-41" title="zhihu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;huang-quan-3-41" rel="noopener" target="_blank"><i class="fa fa-fw fa-zhihu"></i>zhihu</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://lzhdeblog.cn/" title="http:&#x2F;&#x2F;lzhdeblog.cn" rel="noopener" target="_blank">卓丶恒</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">京ICP备19051662号 </a>
+      <img src="https://static.dy208.cn/o_1dfilp8ruo521thr1hvf18ji17soa.png" style="display: inline-block;">
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">侠梦</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">52k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">47 分钟</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    url = encodeURI(url);
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.getAttribute('id'));
+      var title = visitors.getAttribute('data-flag-title');
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title: title, url: url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.getAttribute('id'));
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=SeOVHDar91vu7xVwMnuIdNHP-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method: method,
+          headers: {
+            'X-LC-Id'     : 'SeOVHDar91vu7xVwMnuIdNHP-gzGzoHsz',
+            'X-LC-Key'    : '1loCMEyjQCCIrLaDO02MaFF4',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script>
+  NexT.utils.loadComments(document.querySelector('#SOHUCS'), () => {
+    var appid = 'cyuHAs3xL';
+    var conf = 'c5eb46fa96e7055de848fc1bfded295d';
+    var width = window.innerWidth || document.documentElement.clientWidth;
+    if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+    } else {
+      var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+    }
+  });
+  </script>
+  <script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+</body>
+</html>

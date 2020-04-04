@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#468eff">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#468eff">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.lifehelper.top","root":"/","scheme":"Gemini","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#468eff","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":false,"nav":null,"activeClass":"changyan"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言快速定位性能故障并非一朝一夕之功，需要我们对很多概念有很深刻的理解，在前文中，我们介绍了heap dump的相关概念和其获取方式，今天我们一起来了解一下什么是：Shallow 和 retained sizes。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一文让你理解什么是shallow heap及retained heap">
+<meta property="og:url" content="https://www.lifehelper.top/%E4%B8%80%E6%96%87%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3%E4%BB%80%E4%B9%88%E6%98%AFshallow-heap%E5%8F%8Aretained-heap/index.html">
+<meta property="og:site_name" content="侠梦的开发笔记">
+<meta property="og:description" content="前言快速定位性能故障并非一朝一夕之功，需要我们对很多概念有很深刻的理解，在前文中，我们介绍了heap dump的相关概念和其获取方式，今天我们一起来了解一下什么是：Shallow 和 retained sizes。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://img.lifehelper.top/FrvnEurnMfu94Lcm0zgmeNJZlgLb">
+<meta property="og:image" content="http://img.lifehelper.top/FjypMRuyvBUiUTtl5slg1irymbXR">
+<meta property="og:image" content="http://img.lifehelper.top/Fu4vyBqQJ30BzgOC5M8gEzrW0mj8">
+<meta property="article:published_time" content="2020-04-04T04:58:06.000Z">
+<meta property="article:modified_time" content="2020-04-04T04:58:23.406Z">
+<meta property="article:author" content="侠梦">
+<meta property="article:tag" content="JVM">
+<meta property="article:tag" content="虚拟机">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://img.lifehelper.top/FrvnEurnMfu94Lcm0zgmeNJZlgLb">
+
+<link rel="canonical" href="https://www.lifehelper.top/%E4%B8%80%E6%96%87%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3%E4%BB%80%E4%B9%88%E6%98%AFshallow-heap%E5%8F%8Aretained-heap/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>一文让你理解什么是shallow heap及retained heap | 侠梦的开发笔记</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?41ade542312b97d643a8df3f7f53917e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  <script>
+    !function(e,t,n,g,i){e[i]=e[i]||function(){(e[i].q=e[i].q||[]).push(arguments)},n=t.createElement("script"),tag=t.getElementsByTagName("script")[0],n.async=1,n.src=('https:'==document.location.protocol?'https://':'http://')+g,tag.parentNode.insertBefore(n,tag)}(window,document,"script","assets.growingio.com/2.1/gio.js","gio");
+    gio('init', 'ad858f46b1a00497', {});
+    gio('send');
+  </script>
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">侠梦的开发笔记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">自助者,天助之</h1>
+      
+  </div>
+
+  <div class="site-nav-right"></div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">17</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">16</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E4%B8%80%E6%96%87%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3%E4%BB%80%E4%B9%88%E6%98%AFshallow-heap%E5%8F%8Aretained-heap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/xiameng.jpg">
+      <meta itemprop="name" content="侠梦">
+      <meta itemprop="description" content="记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="侠梦的开发笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          一文让你理解什么是shallow heap及retained heap
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-04 12:58:06 / 修改时间：12:58:23" itemprop="dateCreated datePublished" datetime="2020-04-04T12:58:06+08:00">2020-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM性能分析系列</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/%E4%B8%80%E6%96%87%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3%E4%BB%80%E4%B9%88%E6%98%AFshallow-heap%E5%8F%8Aretained-heap/" class="post-meta-item leancloud_visitors" data-flag-title="一文让你理解什么是shallow heap及retained heap" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/%E4%B8%80%E6%96%87%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3%E4%BB%80%E4%B9%88%E6%98%AFshallow-heap%E5%8F%8Aretained-heap/#SOHUCS" itemprop="discussionUrl">
+        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="一文让你理解什么是shallow-heap及retained-heap/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>快速定位性能故障并非一朝一夕之功，需要我们对很多概念有很深刻的理解，在前文中，我们介绍了heap dump的相关概念和其获取方式，今天我们一起来了解一下什么是：<br>Shallow 和 retained sizes。</p>
+<a id="more"></a> 
+
+
+<h3 id="GC-ROOT是什么？"><a href="#GC-ROOT是什么？" class="headerlink" title="GC ROOT是什么？"></a>GC ROOT是什么？</h3><p>在java语言中，都是通过可达性分析来判定对象是否存活的。此算法的基本思路是：通过一系列的称为“GC Roots”的对象作为起点，从这些节点向下搜索，搜索所走过的路径称为引用链（Reference Chain），当一个对象到GC Roots没有任何引用链相连，则证明此对象是不可达的。</p>
+<p><img src="http://img.lifehelper.top/FrvnEurnMfu94Lcm0zgmeNJZlgLb" alt="file"></p>
+<p>在上图右侧中，我们可以看到，对象5/6/7虽然有依赖关联，但是他们到GC ROOT根节点是不可达的，所以这三个节点对象会被判定为是可回收的。</p>
+<p>GC ROOT的定义比较特别，他们不属归属于对象图中，对象也不能反向的依赖他们，这也确保了不会出现循环引用的问题。因此也容易得出，只有引用类型的变量才被认为是Roots，值类型的变量永远不被认为是Roots。</p>
+<p>在Java中，可作为GC Roots的对象包括以下几种：</p>
+<p>虚拟机栈（栈帧中的局部变量表，Local Variable Table）中引用的对象。<br>方法区中类静态属性引用的对象。<br>方法区中常量引用的对象。<br>本地方法栈中JNI（即一般说的Native方法）引用的对象。</p>
+<p>看到这里你可能要问，选择这些对象的依据是什么呢？</p>
+<p>首先，GCROOT的目标对象是要以当前还在存活的对象集合，因此必须要选取确定存活的引用类型对象，GC管理的区域是java的堆，虚拟机栈、方法区和本地方法栈不被GC所管理，因此选用这些区域内引用的对象作为GC Roots，是不会被GC回收的。</p>
+<p>其中虚拟机栈和本地方法栈都是线程私有的内存区域，只要线程没有终止，就能确保它们中引用的对象的存活。而方法区中类静态属性引用的对象是显然存活的。常量引用的对象在当前可能存活，因此，也可能是GC roots的一部分。</p>
+<p>下图是使用MAT工具中的 “path to GC roots ”功能分析出来的引用链。<br><img src="http://img.lifehelper.top/FjypMRuyvBUiUTtl5slg1irymbXR" alt="file"></p>
+<p>它标识从当前对象到GC roots的路径，这个路径解释了为什么当前对象还能存活，对分析内存泄露很有帮助。</p>
+<p>在查询到GC root的路径时，默认是包含所有引用的，从GC角度说，一个对象无法被GC，一定是因为有强引用存在，其它引用类型在GC需要的情况下都是可以被GC掉的，所以这里我使用 exclude all phantom/weak/soft etc. references 只查看GC路径上的强引用。</p>
+<h3 id="shallow-heap和retained-heap"><a href="#shallow-heap和retained-heap" class="headerlink" title="shallow heap和retained heap"></a>shallow heap和retained heap</h3><p>直译过来是浅层堆和保留堆的意思。先说一说其基本的概念。</p>
+<h4 id="shallow-heap"><a href="#shallow-heap" class="headerlink" title="shallow heap"></a>shallow heap</h4><p>表示对象本身占用内存的大小，也就是对象头加成员变量（不是成员变量的值）的总和。</p>
+<p>如一个引用占用32或64bit，一个integer占4bytes，Long占8bytes等。</p>
+<p>如简单的一个类里面只有一个成员变量int i，那么这个类的shallow size是12字节，因为对象头是8字节，成员变量int是4字节。</p>
+<p>常规对象（非数组）的Shallow size有其成员变量的数量和类型决定，数组的shallow size有数组元素的类型（对象类型、基本类型）和数组长度决定。</p>
+<p>对象的值是分配给存储对象本身的内存量，不考虑所引用的对象。常规(非数组)对象的浅大小取决于其字段的数量和类型。数组的浅尺寸取决于数组的长度及其元素(对象、基本类型)的类型。一组对象的浅尺寸表示该集合中所有对象的浅尺寸之和。</p>
+<h4 id="retained-heap"><a href="#retained-heap" class="headerlink" title="retained heap"></a>retained heap</h4><p>如果一个对象被释放掉，那会因为该对象的释放而减少引用进而被释放的所有的对象（包括被递归释放的）所占用的heap大小，即对象被垃圾回收器回收后能被GC从内存中移除的所有对象之和。相对于shallow heap，Retained heap可以更精确的反映一个对象实际占用的大小（若该对象释放，retained heap都可以被释放）。</p>
+<h3 id="实际案例分析"><a href="#实际案例分析" class="headerlink" title="实际案例分析"></a>实际案例分析</h3><p><img src="http://img.lifehelper.top/Fu4vyBqQJ30BzgOC5M8gEzrW0mj8" alt="file"></p>
+<p>正如上图所示：<br>在这两张图中，我们画出了GC ROOT到所有对象引用链。在这里我们着重分析一下Retained size。</p>
+<p>对于obj1这个对象：<br>GC ROOT指向它，并且它依赖于obj2、obj3、obj4，但是由于obj3同样也被GC ROOT所指。<br>所以：</p>
+<p>分析obj1:</p>
+<p>对于图1，retained size包括：obj1+obj2+obj4</p>
+<p>对于图2，retained size包括：obj1+obj2+obj3+obj4</p>
+<p>分析obj2:</p>
+<p>对于图1：retained size包括：obj2+obj4</p>
+<p>对于图2：retained size包括：obj2+obj3+obj4</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本篇文章围绕内存分析中的Shallow 和Retained heap扩展了解了几个知识点如下：</p>
+<ul>
+<li>gc root的定义和概念的了解。</li>
+<li>对象可达性分析和选择gc root的依据。</li>
+<li>针对单个对象使用“path to GC roots”查看其引用树。</li>
+<li>shallow heap和retained heap的基本概念。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\搞java开发-看懂JVM的-GC-日志真的很重要\" rel="bookmark">搞java开发 看懂JVM的 GC 日志真的很重要</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\java内存溢出问题分析过程二-附MAT超全操作文档\" rel="bookmark">java内存溢出问题分析过程二(附MAT超全操作文档)</a></div>
+    </li>
+  </ul>
+<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">
+        -------------本文结束 <i class="fa fa-paw"></i> 感谢您的阅读------------- <br />
+
+        <div style='color:red'>
+        创建了一个java方面的互助群，和其他传统的学习群不同。<br />
+
+        在本群，你可以<br />
+        1）阐述你在开发过程中遇到的问题，群友集思广益，高效解答。<br />
+        2）分享自己学习的一些心得，让后来学习者少踩坑。<br />
+        3）资源共享，无论是好的学习视频还是文档都可以在群内共享。<br />
+        关注后回复问题答案与群友讨论：java中Integer包装类的基本数据类型是？<br />
+        </div>
+        <img width="600px" src="https://sourl.cn/LkG43C" alt="扫码关注，互相帮助" />
+        </div>
+    
+</div>
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    有疑问？加群讨论吧
+  </button>
+  <div id="qr" style="display: none;">
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>侠梦
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.lifehelper.top/%E4%B8%80%E6%96%87%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3%E4%BB%80%E4%B9%88%E6%98%AFshallow-heap%E5%8F%8Aretained-heap/" title="一文让你理解什么是shallow heap及retained heap">https://www.lifehelper.top/一文让你理解什么是shallow-heap及retained-heap/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JVM/" rel="tag"># JVM</a>
+              <a href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/" rel="tag"># 虚拟机</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/java%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B%E4%BA%8C-%E9%99%84MAT%E8%B6%85%E5%85%A8%E6%93%8D%E4%BD%9C%E6%96%87%E6%A1%A3/" rel="prev" title="java内存溢出问题分析过程二(附MAT超全操作文档)">
+      <i class="fa fa-chevron-left"></i> java内存溢出问题分析过程二(附MAT超全操作文档)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="SOHUCS"></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GC-ROOT是什么？"><span class="nav-number">2.</span> <span class="nav-text">GC ROOT是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shallow-heap和retained-heap"><span class="nav-number">3.</span> <span class="nav-text">shallow heap和retained heap</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#shallow-heap"><span class="nav-number">3.1.</span> <span class="nav-text">shallow heap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#retained-heap"><span class="nav-number">3.2.</span> <span class="nav-text">retained heap</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实际案例分析"><span class="nav-number">4.</span> <span class="nav-text">实际案例分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="侠梦"
+      src="/images/xiameng.jpg">
+  <p class="site-author-name" itemprop="name">侠梦</p>
+  <div class="site-description" itemprop="description">记录开发历程，分享工具资源<br />长路漫漫，未来可期<br />愿不忘初心，砥砺前行</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Hyq0823" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Hyq0823" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:82347749@qq.com" title="E-Mail → mailto:82347749@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/5026953203" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;5026953203" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/u012811805" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;u012811805" rel="noopener" target="_blank"><i class="fa fa-fw fa-csdn"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/huang-quan-3-41" title="zhihu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;huang-quan-3-41" rel="noopener" target="_blank"><i class="fa fa-fw fa-zhihu"></i>zhihu</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://lzhdeblog.cn/" title="http:&#x2F;&#x2F;lzhdeblog.cn" rel="noopener" target="_blank">卓丶恒</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">京ICP备19051662号 </a>
+      <img src="https://static.dy208.cn/o_1dfilp8ruo521thr1hvf18ji17soa.png" style="display: inline-block;">
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">侠梦</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">52k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">47 分钟</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    url = encodeURI(url);
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.getAttribute('id'));
+      var title = visitors.getAttribute('data-flag-title');
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title: title, url: url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.getAttribute('id'));
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=SeOVHDar91vu7xVwMnuIdNHP-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method: method,
+          headers: {
+            'X-LC-Id'     : 'SeOVHDar91vu7xVwMnuIdNHP-gzGzoHsz',
+            'X-LC-Key'    : '1loCMEyjQCCIrLaDO02MaFF4',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script>
+  NexT.utils.loadComments(document.querySelector('#SOHUCS'), () => {
+    var appid = 'cyuHAs3xL';
+    var conf = 'c5eb46fa96e7055de848fc1bfded295d';
+    var width = window.innerWidth || document.documentElement.clientWidth;
+    if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+    } else {
+      var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+    }
+  });
+  </script>
+  <script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+</body>
+</html>

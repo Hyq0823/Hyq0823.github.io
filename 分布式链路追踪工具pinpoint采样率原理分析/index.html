@@ -20,26 +20,33 @@
     var CONFIG = {"hostname":"www.lifehelper.top","root":"/","scheme":"Gemini","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#468eff","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":false,"nav":null,"activeClass":"changyan"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="前言在上文中我们学习到了RDD(弹性分布式数据集)的基础概念，而本文介绍的wordcount，相当于入门spark的hello word程序。">
+  <meta name="description" content="前言一系列的服务上云后，可能分布在几千甚至几万台服务器上，服务于服务之间存在大量复杂的调用关系，而pinpoint在采集这些服务数据时，同样会产生大量的报文。 在naver公司的在线门户服务有海量请求。单个服务每天处理超过200亿请求。如果要跟踪所有的请求，解决的办法是需要添加足够多的网络设施和服务器来来支撑收集数据。 但是对于这种非核心生产的监控系统来说，是很不划算的，浪费金钱又浪费资源。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="从Spark WordCount程序认识Spark架构（二）">
-<meta property="og:url" content="https://www.lifehelper.top/%E4%BB%8ESpark-WordCount%E7%A8%8B%E5%BA%8F%E8%AE%A4%E8%AF%86Spark%E6%9E%B6%E6%9E%84%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:title" content="分布式链路追踪工具pinpoint采样率原理分析">
+<meta property="og:url" content="https://www.lifehelper.top/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/index.html">
 <meta property="og:site_name" content="侠梦的开发笔记">
-<meta property="og:description" content="前言在上文中我们学习到了RDD(弹性分布式数据集)的基础概念，而本文介绍的wordcount，相当于入门spark的hello word程序。">
+<meta property="og:description" content="前言一系列的服务上云后，可能分布在几千甚至几万台服务器上，服务于服务之间存在大量复杂的调用关系，而pinpoint在采集这些服务数据时，同样会产生大量的报文。 在naver公司的在线门户服务有海量请求。单个服务每天处理超过200亿请求。如果要跟踪所有的请求，解决的办法是需要添加足够多的网络设施和服务器来来支撑收集数据。 但是对于这种非核心生产的监控系统来说，是很不划算的，浪费金钱又浪费资源。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://img.lifehelper.top/FnofNDAP4zzqBxQhZHch5Wmq-mf4">
-<meta property="og:image" content="http://img.lifehelper.top/FmqfljHl4vi8x2hEFU78pq50QQkO">
-<meta property="og:image" content="http://img.lifehelper.top/Fi5ulhEpZlO_uoVk7cf8mGxRsYzD">
-<meta property="og:image" content="http://img.lifehelper.top/FnyuZu3kdSYfP6H6afJuU4iACK1F">
-<meta property="og:image" content="http://img.lifehelper.top/Fs361H7AUVoPfQ-iU3Yaa-dsD_u4">
-<meta property="article:published_time" content="2020-03-01T03:07:13.000Z">
-<meta property="article:modified_time" content="2020-03-03T10:21:21.304Z">
+<meta property="og:image" content="http://img.lifehelper.top/Fs4TsZEh4ECvUjJzboUgW8hN5Jjj">
+<meta property="og:image" content="http://img.lifehelper.top/Fjf3CCpK7WyyzDeuIW0aPMhb-BW1">
+<meta property="og:image" content="http://img.lifehelper.top/FhC2Rs4dDxaKSUfLk0opGbt4aMDp">
+<meta property="og:image" content="http://img.lifehelper.top/FoW5zhc6lFcLO0mUcH6afH_fTtdr">
+<meta property="og:image" content="http://img.lifehelper.top/Fsn6G6rjnBFQiYmkZw7jGFkkp4-g">
+<meta property="og:image" content="http://img.lifehelper.top/FoiWJzPz836bi-e4fdtgTtxmbucX">
+<meta property="og:image" content="http://img.lifehelper.top/FlCiproScB2vjbtlwho2ZH3OPlgM">
+<meta property="og:image" content="http://img.lifehelper.top/FqkRklwOxXrEGEzbqc8lVDnKFJGT">
+<meta property="og:image" content="http://img.lifehelper.top/Fmcst-HUZCLDuz0d18bCmM0AcLtE">
+<meta property="og:image" content="http://img.lifehelper.top/FvSJp7PhTfFynSSuGHsiste1I1O4">
+<meta property="og:image" content="http://img.lifehelper.top/FnIbnzI1AXtJ3GpmeC2AqhSd9lXt">
+<meta property="og:image" content="http://img.lifehelper.top/FrN5K4jhez8ghFcLPptcr1v0PZgi">
+<meta property="article:published_time" content="2020-04-04T04:54:25.000Z">
+<meta property="article:modified_time" content="2020-04-04T04:55:13.503Z">
 <meta property="article:author" content="侠梦">
-<meta property="article:tag" content="Spark">
+<meta property="article:tag" content="pinpoint">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://img.lifehelper.top/FnofNDAP4zzqBxQhZHch5Wmq-mf4">
+<meta name="twitter:image" content="http://img.lifehelper.top/Fs4TsZEh4ECvUjJzboUgW8hN5Jjj">
 
-<link rel="canonical" href="https://www.lifehelper.top/%E4%BB%8ESpark-WordCount%E7%A8%8B%E5%BA%8F%E8%AE%A4%E8%AF%86Spark%E6%9E%B6%E6%9E%84%EF%BC%88%E4%BA%8C%EF%BC%89/">
+<link rel="canonical" href="https://www.lifehelper.top/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/">
 
 
 <script id="page-configurations">
@@ -51,7 +58,7 @@
   };
 </script>
 
-  <title>从Spark WordCount程序认识Spark架构（二） | 侠梦的开发笔记</title>
+  <title>分布式链路追踪工具pinpoint采样率原理分析 | 侠梦的开发笔记</title>
   
 
 
@@ -144,17 +151,17 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">8</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">17</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">7</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">11</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">10</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">16</span></a>
 
   </li>
   </ul>
@@ -184,7 +191,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E4%BB%8ESpark-WordCount%E7%A8%8B%E5%BA%8F%E8%AE%A4%E8%AF%86Spark%E6%9E%B6%E6%9E%84%EF%BC%88%E4%BA%8C%EF%BC%89/">
+    <link itemprop="mainEntityOfPage" href="https://www.lifehelper.top/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/xiameng.jpg">
@@ -197,7 +204,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          从Spark WordCount程序认识Spark架构（二）
+          分布式链路追踪工具pinpoint采样率原理分析
         </h2>
 
         <div class="post-meta">
@@ -206,30 +213,24 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2020-03-01 11:07:13" itemprop="dateCreated datePublished" datetime="2020-03-01T11:07:13+08:00">2020-03-01</time>
+              <time title="创建时间：2020-04-04 12:54:25 / 修改时间：12:55:13" itemprop="dateCreated datePublished" datetime="2020-04-04T12:54:25+08:00">2020-04-04</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-03 18:21:21" itemprop="dateModified" datetime="2020-03-03T18:21:21+08:00">2020-03-03</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Spark%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">Spark从入门到成神之路</span>
+                  <a href="/categories/%E4%BE%A0%E6%A2%A6%E8%AF%B4Pinpoint%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">侠梦说Pinpoint系列</span>
                   </a>
                 </span>
             </span>
 
           
-            <span id="/%E4%BB%8ESpark-WordCount%E7%A8%8B%E5%BA%8F%E8%AE%A4%E8%AF%86Spark%E6%9E%B6%E6%9E%84%EF%BC%88%E4%BA%8C%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="从Spark WordCount程序认识Spark架构（二）" title="阅读次数">
+            <span id="/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" class="post-meta-item leancloud_visitors" data-flag-title="分布式链路追踪工具pinpoint采样率原理分析" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -252,8 +253,8 @@
       <span class="post-meta-item-text">Changyan：</span>
     
     
-      <a title="changyan" href="/%E4%BB%8ESpark-WordCount%E7%A8%8B%E5%BA%8F%E8%AE%A4%E8%AF%86Spark%E6%9E%B6%E6%9E%84%EF%BC%88%E4%BA%8C%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
-        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="从Spark-WordCount程序认识Spark架构（二）/" itemprop="commentCount"></span>
+      <a title="changyan" href="/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/#SOHUCS" itemprop="discussionUrl">
+        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="分布式链路追踪工具pinpoint采样率原理分析/" itemprop="commentCount"></span>
       </a>
     
   </span>
@@ -264,14 +265,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.4k</span>
+              <span>2.1k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
+              <span>2 分钟</span>
             </span>
 
         </div>
@@ -283,49 +284,54 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>在上文中我们学习到了RDD(弹性分布式数据集)的基础概念，而本文介绍的wordcount，相当于入门spark的hello word程序。</p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>一系列的服务上云后，可能分布在几千甚至几万台服务器上，服务于服务之间存在大量复杂的调用关系，而pinpoint在采集这些服务数据时，同样会产生大量的报文。</p>
+<p>在naver公司的在线门户服务有海量请求。单个服务每天处理超过200亿请求。如果要跟踪所有的请求，解决的办法是需要添加足够多的网络设施和服务器来来支撑收集数据。</p>
+<p>但是对于这种非核心生产的监控系统来说，是很不划算的，浪费金钱又浪费资源。</p>
 <a id="more"></a> 
 
-<p>我们准备一个nohup.out文件，内容如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">my </span><br><span class="line">name </span><br><span class="line">is </span><br><span class="line">hyq </span><br><span class="line">hyq</span><br><span class="line">hyq</span><br></pre></td></tr></table></figure>
+<p><img src="http://img.lifehelper.top/Fs4TsZEh4ECvUjJzboUgW8hN5Jjj" alt="file"></p>
+<h3 id="什么是采样率"><a href="#什么是采样率" class="headerlink" title="什么是采样率"></a>什么是采样率</h3><p>在Pinpoint中，可以收集设置采样，而不必跟踪每个请求。在开发环境中请求量很小，每个数据都收集。而在产品环境请求量巨大，收集小比率的数据如1~5%，足够检查整个应用的状态。采样之后，可以最小化应用的网络开销并降低诸如网络和服务器的设施费用。</p>
+<p><img src="http://img.lifehelper.top/Fjf3CCpK7WyyzDeuIW0aPMhb-BW1" alt="file"></p>
+<h3 id="pinpoint的采样率是如何配置的？"><a href="#pinpoint的采样率是如何配置的？" class="headerlink" title="pinpoint的采样率是如何配置的？"></a>pinpoint的采样率是如何配置的？</h3><p>对应的配置项在agent下的pinpoint.config文件中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># Allow sampling.</span><br><span class="line">profiler.sampling.enable&#x3D;true</span><br><span class="line"></span><br><span class="line"># 1 out of n transactions will be sampled where n is the rate. (20: 5%)</span><br><span class="line">profiler.sampling.rate&#x3D;1</span><br><span class="line"></span><br><span class="line"># 1 out of n entities will be sampled where n is the rate. (10: 10%)</span><br><span class="line">profiler.apache.httpclient4.entity.sampling.rate&#x3D;1</span><br></pre></td></tr></table></figure>
 
-
-<h4 id="引入依赖"><a href="#引入依赖" class="headerlink" title="引入依赖"></a>引入依赖</h4><p>首先新建一个maven工程，引入spark-core依赖,使用的版本为2.3.1。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;scala.binary.version&gt;2.11&lt;&#x2F;scala.binary.version&gt;</span><br><span class="line">&lt;spark.version&gt;2.3.1&lt;&#x2F;spark.version&gt;</span><br><span class="line"></span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;org.apache.spark&lt;&#x2F;groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;spark-core_$&#123;scala.binary.version&#125;&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;version&gt;$&#123;spark.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">	&lt;scope&gt;provided&lt;&#x2F;scope&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
-
-<h4 id="程序编写"><a href="#程序编写" class="headerlink" title="程序编写"></a>程序编写</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public class wordCount &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;用于saprk应用的的配置，</span><br><span class="line">        &#x2F;&#x2F; 默认情况下： spark.*开头的系统变量会被加载</span><br><span class="line">        &#x2F;&#x2F;但是直接在对象上设置的同名属性，优先级高于系统变量。</span><br><span class="line">        &#x2F;&#x2F;一旦创建，在运行时不支持动态修改。</span><br><span class="line">        SparkConf sparkConf &#x3D; new SparkConf()</span><br><span class="line">                .setMaster(&quot;local&quot;)</span><br><span class="line">                .setAppName(&quot;hyq-word-count-app&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;解决本地运行spark报错heap size不足的问题</span><br><span class="line">        sparkConf.set(&quot;spark.testing.memory&quot;,(512 * 1014 * 1024)+&quot;&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;Spark功能的主要入口点</span><br><span class="line">        &#x2F;&#x2F;它的主要作用有：</span><br><span class="line">        &#x2F;&#x2F;1) 代表着和sapark集群的链接</span><br><span class="line">        &#x2F;&#x2F;2) 用于进行RDD的创建、累加和在集群中广播变量使用。</span><br><span class="line">        SparkContext sparkContext &#x3D; new SparkContext(sparkConf);</span><br><span class="line"></span><br><span class="line">        JavaSparkContext sc &#x3D; new JavaSparkContext(sparkContext);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;Read a text file from HDFS, a local file system (available on all nodes),</span><br><span class="line">        &#x2F;&#x2F; or any Hadoop-supported file system URI,</span><br><span class="line">        &#x2F;&#x2F; and return it as an RDD of Strings.</span><br><span class="line">        &#x2F;&#x2F;textFile可以从hdfs,本地文件系统（在集群模式下，需要所有节点可见）</span><br><span class="line">        JavaRDD&lt;String&gt; linesRdd &#x3D; sc.textFile(&quot;C:\\Users\\Administrator\\Desktop\\nohup.out&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F;将单词按照空格分隔</span><br><span class="line">        JavaPairRDD&lt;String, Integer&gt; pairRDD &#x3D; linesRdd.flatMap((FlatMapFunction&lt;String, String&gt;) line -&gt; &#123;</span><br><span class="line">            List&lt;String&gt; list &#x3D; Arrays.asList(line.split(&quot; &quot;));</span><br><span class="line">            return list.iterator();</span><br><span class="line">        &#125;).mapToPair((PairFunction&lt;String, String, Integer&gt;) word -&gt; new Tuple2(word, 1))</span><br><span class="line">                .reduceByKey((Function2&lt;Integer, Integer, Integer&gt;) (x, y) -&gt; x + y);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        pairRDD.foreach((VoidFunction&lt;Tuple2&lt;String, Integer&gt;&gt;) tuple -&gt; &#123;</span><br><span class="line">            System.out.println(&quot;单词：&quot;+tuple._1 +&quot;出现次数： &quot;+ tuple._2);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>计算结果输出内容：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">单词：is出现次数： 1</span><br><span class="line">单词：name出现次数： 1</span><br><span class="line">单词：hyq出现次数： 3</span><br><span class="line">单词：my出现次数： 1</span><br></pre></td></tr></table></figure>
-
-
-<h4 id="核心类的理解和学习"><a href="#核心类的理解和学习" class="headerlink" title="核心类的理解和学习"></a>核心类的理解和学习</h4><p><img src="http://img.lifehelper.top/FnofNDAP4zzqBxQhZHch5Wmq-mf4" alt="file"></p>
-<h5 id="SparkConf-类"><a href="#SparkConf-类" class="headerlink" title="SparkConf 类"></a>SparkConf 类</h5><p>SparkConf包含了初始化spark集群配置的参数，默认情况下，无参的构造函数：new SparkConf()，会加载spark.*开头的java系统变量，同时<br>也可以通过sparkConf.set(key,value)。的形式设置变量和值。<br>但是直接在对象上设置的同名属性，优先级高于系统变量，一旦创建，在运行时不支持动态修改。</p>
-<h5 id="SparkContext-类"><a href="#SparkContext-类" class="headerlink" title="SparkContext 类"></a>SparkContext 类</h5><p>代表着和sapark集群的链接。用于进行RDD的创建、累加和在集群中广播变量使用。</p>
-<h5 id="JavaSparkContext-类"><a href="#JavaSparkContext-类" class="headerlink" title="JavaSparkContext  类"></a>JavaSparkContext  类</h5><p>SparkContext的Java版本，返回javardd并且使用Java集合而不是Scala集合。</p>
-<h5 id="JavaRDD-类"><a href="#JavaRDD-类" class="headerlink" title="JavaRDD  类"></a>JavaRDD  类</h5><p>Spark是Scala写的。JavaRDD就是Spark为Java写的一套API。</p>
-<h5 id="JavaPairRDD-类"><a href="#JavaPairRDD-类" class="headerlink" title="JavaPairRDD 类"></a>JavaPairRDD 类</h5><p>JavaRDD =&gt; JavaPairRDD: 通过mapToPair函数<br>JavaPairRDD =&gt; JavaRDD: 通过map函数转换 </p>
-<h5 id="宽依赖和窄依赖"><a href="#宽依赖和窄依赖" class="headerlink" title="宽依赖和窄依赖"></a>宽依赖和窄依赖</h5><p><img src="http://img.lifehelper.top/FmqfljHl4vi8x2hEFU78pq50QQkO" alt="file"></p>
-<p>窄依赖：父RDD中，每个分区内的数据，都只会被子RDD中特定的分区所消费，为窄依赖：</p>
-<p>宽依赖：父RDD中，分区内的数据，会被子RDD内多个分区消费，则为宽依赖：</p>
-<p>一句话描述：父RDD中分区内的数据，是否在子类RDD中也完全处于一个分区，如果是，窄依赖，如果不是，宽依赖。</p>
-<h5 id="算子操作"><a href="#算子操作" class="headerlink" title="算子操作"></a>算子操作</h5><p>spark中的数据都是抽象为RDD的，它支持两种类型的算子操作：Transformation和Action。Transformation算子的代码不会真正被执行。只有当我们的程序里面遇到一个action算子的时候，代码才会真正的被执行。</p>
-<p><img src="http://img.lifehelper.top/Fi5ulhEpZlO_uoVk7cf8mGxRsYzD" alt="file"></p>
-<h5 id="job和stage和task都是什么？"><a href="#job和stage和task都是什么？" class="headerlink" title="job和stage和task都是什么？"></a>job和stage和task都是什么？</h5><p>当在程序中遇到一个action算子的时候，就会提交一个job。</p>
-<p>每个Job被分为小的计算任务组，每组称为一个stage。<br>而在一个job 中划分stage 的一个重要依据是否有shuflle 发生 ，也就是是否会发生数据的重组 （重新组织数据）。</p>
-<p>shuffle依赖是两个stage的分界点。shuffle操作一般都是任务中最耗时耗资源的部分。因为数据可能存放在不同的节点上，</p>
-<p>下一个stage的执行首先要去拉取上一个stage的数据（shuffle read操作），保存在自己的节点上，就会增加网络通信和IO。</p>
-<p>而Task是真正执行的工作单元，对一个Stage之内的RDD进行串行操作的计算任务。多个Task组成一个Stage。</p>
-<h5 id="WordCount执行逻辑图"><a href="#WordCount执行逻辑图" class="headerlink" title="WordCount执行逻辑图"></a>WordCount执行逻辑图</h5><p><img src="http://img.lifehelper.top/FnyuZu3kdSYfP6H6afJuU4iACK1F" alt="file"></p>
-<p>上述逻辑图配合线上运行的UI视图来加深先前提出的各个逻辑理念。</p>
-<p><img src="http://img.lifehelper.top/Fs361H7AUVoPfQ-iU3Yaa-dsD_u4" alt="file"></p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>本篇文章，我们使用spark编写了一个入门级的WordCount程序，通过程序：</p>
+<p>首先采样率有开关配置。默认”profiler.sampling.rate=1”表示全部</p>
+<p>Pinpoint 支持计数采样，如果设置为10则只采样10分之一的请求。我们计划增加新的采样器来更有效率的收集数据。</p>
+<p>很多小伙伴，看到采样率配置，以为是配置的百分比，上来就配一个0点几，其实不是的，这里我们简单来理解一下，我们只需要关注分母即可，比如要配10%的采样，那么设置这个属性的值为10即可。</p>
+<p><img src="http://img.lifehelper.top/FhC2Rs4dDxaKSUfLk0opGbt4aMDp" alt="file"></p>
+<h3 id="pinpoint内部用的依赖注入框架Google-Guice"><a href="#pinpoint内部用的依赖注入框架Google-Guice" class="headerlink" title="pinpoint内部用的依赖注入框架Google Guice"></a>pinpoint内部用的依赖注入框架Google Guice</h3><p>pinpoint内部的是否采样和采样率，是通过Sampler对象来封装的。</p>
+<p>可以看到是通过com.google.inject.Inject注解来进行依赖注入的。</p>
+<p>内部使用的是Google Guice ，它一个轻量级的依赖注入框架。和spring不同的是：<br>Spring 耦合度低，而Guice 耦合度高，代码级的标注，DI 标记 @inject 侵入代码中，耦合到了类层面上来。</p>
+<p>Guice 使用注解 Annotation，cglib, 效率高，这是与与 Spring 最明显的一个区别，Spring 是在装载配置文件的时候把该注入的地方都注入完，而 Guice 呢，则是在使用的时候去注射，运行效率和灵活性高。</p>
+<p><img src="http://img.lifehelper.top/FoW5zhc6lFcLO0mUcH6afH_fTtdr" alt="file"></p>
+<h3 id="pinpoint采样原理"><a href="#pinpoint采样原理" class="headerlink" title="pinpoint采样原理"></a>pinpoint采样原理</h3><p>某条请求是否被采样，取决于整个链路开始的机器。该机器使用特定的采样算法。采样的标志会一直在链路中透传。比如在http里面，会在header里面增加Pinpoint-Sampled字段，使用不同的值表示是否采样。</p>
+<p><img src="http://img.lifehelper.top/Fsn6G6rjnBFQiYmkZw7jGFkkp4-g" alt="file"></p>
+<p>上图显示pinpoint具体会使用到的一些Header。</p>
+<p>具体的判断逻辑，是通过SamplingFlagUtils类来实现的。</p>
+<p><img src="http://img.lifehelper.top/FoiWJzPz836bi-e4fdtgTtxmbucX" alt="file"></p>
+<h3 id="代码层面的配置学习"><a href="#代码层面的配置学习" class="headerlink" title="代码层面的配置学习"></a>代码层面的配置学习</h3><p>其实，代码层面很简单，就是判断，如果不采样，那就不发送大量的报文就行。</p>
+<p>但是！</p>
+<p>你总得告诉下游把，不然怎么串联起来呢，当然每个agent可以单独有自己的采样配置，<br>最好还是保持一致。</p>
+<p>以httpclient4的插件为例。</p>
+<p><img src="http://img.lifehelper.top/FlCiproScB2vjbtlwho2ZH3OPlgM" alt="file"></p>
+<p>从当前上下文里面获取Trace对象，并判断是否采样，其Trace体系如下图所示：</p>
+<p><img src="http://img.lifehelper.top/FqkRklwOxXrEGEzbqc8lVDnKFJGT" alt="file"></p>
+<h3 id="发送端采样处理"><a href="#发送端采样处理" class="headerlink" title="发送端采样处理"></a>发送端采样处理</h3><p>在请求发送到下游的机器之前，会从当前上下文里面获取Trace对象。</p>
+<p><img src="http://img.lifehelper.top/Fmcst-HUZCLDuz0d18bCmM0AcLtE" alt="file"></p>
+<p>如果不采样，则尝试在http头部写入Pinpoint-Sampled=s0, 其他信息都不传递。<br><img src="http://img.lifehelper.top/FvSJp7PhTfFynSSuGHsiste1I1O4" alt="file"></p>
+<p>如果为需要采样，则不设置Pinpoint-Sampled字段，只设置其他trace相关字段，比如Header.HTTP_TRACE_ID等。</p>
+<p><img src="http://img.lifehelper.top/FnIbnzI1AXtJ3GpmeC2AqhSd9lXt" alt="file"></p>
+<h3 id="接收端采样处理"><a href="#接收端采样处理" class="headerlink" title="接收端采样处理"></a>接收端采样处理</h3><p><img src="http://img.lifehelper.top/FrN5K4jhez8ghFcLPptcr1v0PZgi" alt="file"></p>
+<p>在服务端收到请求之后，会去查看请求里面是否有Pinpoint-Sampled字段和Pinpoint-TraceID等字段。分为下面几种情况：</p>
+<p>有Pinpoint-Sampled字段，并且值为s0，表示此条请求不采样。</p>
+<p>没有Pinpoint-Sampled字段，但是有Pinpoint-TraceID等字段，表示此条请求被采样。</p>
+<p>没有Pinpoint-Sampled字段，也没有Pinpoint-TraceID等字段，认为接收该请求的机器，是整条链路的第一个机器，或者链路信息在前面有丢失。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>在系统完成一次业务调用的过程中，会产生很多的调用链打点数据，在业务量大的时候，这些数据可能同样会成为我们系统的负担，所以对数据采样很有必要，在保证样本充足的情况下，同样能够进行数据分析和定位系统性能瓶颈，快速定位异常的服务。<br>本篇文章我们介绍了如下内容：</p>
 <ul>
-<li>了解到了通过文本文件创建RDD的方式，和RDD的转换。</li>
-<li>初步了解了Spark的常用api的使用。</li>
-<li>宽依赖和窄依赖的概念。</li>
-<li>两种类型的算子操作。</li>
-<li>wordcount程序的逻辑流程图理解。</li>
+<li>pinpoint采样率的概念和应用。</li>
+<li>pinpoint采样率的配置。</li>
+<li>pinpoint使用的依赖注入框架Google Guice和spring的对比。</li>
+<li>pinpoint的采样原理。</li>
 </ul>
 
     </div>
@@ -337,7 +343,7 @@
   <div class="popular-posts-header">相关文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\Spark从入门到成神之路-Spark理论开山篇（一）\" rel="bookmark">Spark从入门到成神之路-Spark理论开山篇（一）</a></div>
+      <div class="popular-posts-title"><a href="\一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）\" rel="bookmark">一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）</a></div>
     </li>
   </ul>
 <div>
@@ -377,7 +383,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://www.lifehelper.top/%E4%BB%8ESpark-WordCount%E7%A8%8B%E5%BA%8F%E8%AE%A4%E8%AF%86Spark%E6%9E%B6%E6%9E%84%EF%BC%88%E4%BA%8C%EF%BC%89/" title="从Spark WordCount程序认识Spark架构（二）">https://www.lifehelper.top/从Spark-WordCount程序认识Spark架构（二）/</a>
+    <a href="https://www.lifehelper.top/%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7pinpoint%E9%87%87%E6%A0%B7%E7%8E%87%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" title="分布式链路追踪工具pinpoint采样率原理分析">https://www.lifehelper.top/分布式链路追踪工具pinpoint采样率原理分析/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -388,7 +394,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Spark/" rel="tag"># Spark</a>
+              <a href="/tags/pinpoint/" rel="tag"># pinpoint</a>
           </div>
 
         
@@ -397,12 +403,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/Spark%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8CHeap%20size%E4%B8%8D%E8%B6%B3%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" rel="prev" title="Spark本地运行Heap size不足解决方案">
-      <i class="fa fa-chevron-left"></i> Spark本地运行Heap size不足解决方案
+    <a href="/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3Thrift%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BC%B8%E7%BC%A9%E7%9A%84%E8%B7%A8%E8%AF%AD%E8%A8%80RPC%E6%A1%86%E6%9E%B6%EF%BC%88pinpoint%E7%B3%BB%E5%88%97%EF%BC%89/" rel="prev" title="一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）">
+      <i class="fa fa-chevron-left"></i> 一文带你了解Thrift，一个可伸缩的跨语言RPC框架（pinpoint系列）
     </a></div>
       <div class="post-nav-item">
-    <a href="/%E9%9D%A2%E8%AF%95%E6%97%A0%E6%83%A7%EF%BC%8C%E8%BF%99%E4%BA%9B%E7%A8%8B%E5%BA%8F%E5%91%98%E9%9D%A2%E8%AF%95%E9%A2%98%E5%90%88%E9%9B%86%E4%B8%8E%E4%BD%A0%E5%88%86%E4%BA%AB/" rel="next" title="面试无惧，这些程序员面试题合集与你分享">
-      面试无惧，这些程序员面试题合集与你分享 <i class="fa fa-chevron-right"></i>
+    <a href="/Nginx%E5%8F%8C%E6%9C%BA%E4%B8%BB%E5%A4%87%EF%BC%88Keepalived%E5%AE%9E%E7%8E%B0%EF%BC%89/" rel="next" title="Nginx双机主备（Keepalived实现）">
+      Nginx双机主备（Keepalived实现） <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -468,7 +474,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#引入依赖"><span class="nav-number">2.</span> <span class="nav-text">引入依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#程序编写"><span class="nav-number">3.</span> <span class="nav-text">程序编写</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#核心类的理解和学习"><span class="nav-number">4.</span> <span class="nav-text">核心类的理解和学习</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#SparkConf-类"><span class="nav-number">4.1.</span> <span class="nav-text">SparkConf 类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SparkContext-类"><span class="nav-number">4.2.</span> <span class="nav-text">SparkContext 类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#JavaSparkContext-类"><span class="nav-number">4.3.</span> <span class="nav-text">JavaSparkContext  类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#JavaRDD-类"><span class="nav-number">4.4.</span> <span class="nav-text">JavaRDD  类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#JavaPairRDD-类"><span class="nav-number">4.5.</span> <span class="nav-text">JavaPairRDD 类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#宽依赖和窄依赖"><span class="nav-number">4.6.</span> <span class="nav-text">宽依赖和窄依赖</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#算子操作"><span class="nav-number">4.7.</span> <span class="nav-text">算子操作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#job和stage和task都是什么？"><span class="nav-number">4.8.</span> <span class="nav-text">job和stage和task都是什么？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#WordCount执行逻辑图"><span class="nav-number">4.9.</span> <span class="nav-text">WordCount执行逻辑图</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是采样率"><span class="nav-number">2.</span> <span class="nav-text">什么是采样率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pinpoint的采样率是如何配置的？"><span class="nav-number">3.</span> <span class="nav-text">pinpoint的采样率是如何配置的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pinpoint内部用的依赖注入框架Google-Guice"><span class="nav-number">4.</span> <span class="nav-text">pinpoint内部用的依赖注入框架Google Guice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pinpoint采样原理"><span class="nav-number">5.</span> <span class="nav-text">pinpoint采样原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码层面的配置学习"><span class="nav-number">6.</span> <span class="nav-text">代码层面的配置学习</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#发送端采样处理"><span class="nav-number">7.</span> <span class="nav-text">发送端采样处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接收端采样处理"><span class="nav-number">8.</span> <span class="nav-text">接收端采样处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">9.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -484,20 +490,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -566,13 +572,13 @@
       <i class="fa fa-area-chart"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">29k</span>
+    <span title="站点总字数">52k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">26 分钟</span>
+    <span title="站点阅读时长">47 分钟</span>
 </div>
 
         
